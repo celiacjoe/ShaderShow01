@@ -1,224 +1,376 @@
 <!DOCTYPE html>
-<html>
-    <head>
-        <meta charset="utf-8">
-        <meta http-equiv="Cache-Control" content="no-cache">
+<html class="nojs html css_verticalspacer" lang="en-GB">
+ <head>
 
-        <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-        <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-        <meta name="apple-mobile-web-app-capable" content="yes">
-        <meta name="mobile-web-app-capable" content="yes">
+  <meta http-equiv="Content-type" content="text/html;charset=UTF-8"/>
+  <meta name="generator" content="2018.1.0.386"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  
+   <!-- NICE SCROLL //////////////////////////////////////////////////////// !-->
+<script src="https://code.jquery.com/jquery-1.12.4.min.js"></script>
+<script src="js/jquery.nicescroll.min.js"></script>
+  
+<script type="text/javascript">
+(function($){
+$(document).ready(
+function() {
+$("body").niceScroll({
+cursorcolor:		"#009999",
+cursorwidth: 		"12px",
+cursorborder: 		"0px solid #000",
+scrollspeed: 		100,
+autohidemode: 		true,
+background: 		'#4d4d4d',
+hidecursordelay: 	400,
+cursorfixedheight: 	false,
+cursorminheight: 	20,
+enablekeyboard: 	true,
+horizrailenabled: 	true,
+bouncescroll: 		false,
+smoothscroll: 		true,
+iframeautoresize: 	true,
+touchbehavior: 		false,
+zindex: 999
+});
+}
+);})(jQuery);
+</script>
 
-        <link rel="apple-touch-icon" href="logo.png">
-        <link rel="icon" href="logo.png">
+  <script type="text/javascript">
+   // Update the 'nojs'/'js' class on the html node
+document.documentElement.className = document.documentElement.className.replace(/\bnojs\b/g, 'js');
 
-        <title>WebGL Fluid Simulation</title>
-        <meta name="description" content="A WebGL fluid simulation that works in mobile browsers.">
+// Check that all required assets are uploaded and up-to-date
+if(typeof Muse == "undefined") window.Muse = {}; window.Muse.assets = {"required":["museutils.js", "museconfig.js", "jquery.watch.js", "require.js", "index.css"], "outOfDate":[]};
+</script>
+  
+  <title>CosaMentaleMain</title>
+  <!-- CSS -->
+  <link rel="stylesheet" type="text/css" href="css/site_global.css?crc=444006867"/>
+  <link rel="stylesheet" type="text/css" href="css/index.css?crc=4211349250" id="pagesheet"/>
+  <!-- IE-only CSS -->
+  <!--[if lt IE 9]>
+  <link rel="stylesheet" type="text/css" href="css/iefonts_index.css?crc=124248301"/>
+  <![endif]-->
+  <!-- Other scripts -->
+  <script type="text/javascript">
+   var __adobewebfontsappname__ = "muse";
+</script>
+  <!-- JS includes -->
+  <script src="https://webfonts.creativecloud.com/lato:n4,n3,n7,i3:default.js" type="text/javascript"></script>
+    <!--/*
 
-        <meta property="og:type" content="website">
-        <meta property="og:title" content="Webgl Fluid Simulation">
-        <meta property="og:description" content="A WebGL fluid simulation that works in mobile browsers.">
-        <meta property="og:url" content="https://paveldogreat.github.io/WebGL-Fluid-Simulation/">
-        <meta property="og:image" content="https://paveldogreat.github.io/WebGL-Fluid-Simulation/logo.png">
+*/
+-->
+  <script type="text/javascript" src="https://rawgit.com/patriciogonzalezvivo/glslCanvas/master/dist/GlslCanvas.js"></script>
+ </head>
+ <body>
 
-        <script type="text/javascript" src="dat.gui.min.js"></script>
-        <style>
-            @font-face {
-                font-family: 'iconfont';
-                src: url('iconfont.ttf') format('truetype');
-            }
+  <div class="clearfix borderbox" id="page"><!-- group -->
+   <div class="clearfix grpelem" id="ppcosamentale"><!-- column -->
+    <div class="clearfix colelem" id="pcosamentale"><!-- group -->
+     <a class="anchor_item grpelem" id="cosamentale" data-sizePolicy="fixed" data-pintopage="page_fluidx"></a>
+     <div class="grpelem" id="u1620"><!-- simple frame --></div>
+     <div class="clearfix grpelem" id="u1623-4"><!-- content -->
+      <p>/</p>
+     </div>
+     <div class="clearfix grpelem" id="u1626-4"><!-- content -->
+      <p>/</p>
+     </div>
+     <div class="grpelem" id="u1778" data-sizePolicy="fluidWidthHeight" data-pintopage="page_fixedCenter">
+<!-- content -->
+     
+	  	     <canvas id="glslCanvas" data-fragment="
+#ifdef GL_ES
+    precision mediump float;
+#endif
 
-            * {
-                user-select: none;
-            }
+uniform vec2 u_resolution;
+uniform vec2 u_mouse;
+uniform float u_time;
 
-            html, body {
-                overflow: hidden;
-                background-color: #000;
-            }
 
-            body {
-                margin: 0;
-                position: fixed;
-                width: 100%;
-                height: 100%;
-            }
+uniform sampler2D u_buffer0;
+uniform sampler2D u_buffer1;
+   lowp float RGBToL(lowp vec3 color)
+    {
+        lowp float fmin = min(min(color.r, color.g), color.b);
+        lowp float fmax = max(max(color.r, color.g), color.b);      
+        return (fmax + fmin) / 2.0; // Luminance
+    }
+    lowp vec3 RGBToHSL(lowp vec3 color)
+    {
+        lowp vec3 hsl; 
+        lowp float fmin = min(min(color.r, color.g), color.b);   
+        lowp float fmax = max(max(color.r, color.g), color.b);   
+        lowp float delta = fmax - fmin;          
+        hsl.z = (fmax + fmin) / 2.0; 
+        if (delta == 0.0)		
+        {
+            hsl.x = 0.0;
+            hsl.y = 0.0;
+        }
+        else                                   
+        {
+            if (hsl.z < 0.5)
+                hsl.y = delta / (fmax + fmin); 
+            else
+                hsl.y = delta / (2.0 - fmax - fmin);            
+            lowp float deltaR = (((fmax - color.r) / 6.0) + (delta / 2.0)) / delta;
+            lowp float deltaG = (((fmax - color.g) / 6.0) + (delta / 2.0)) / delta;
+            lowp float deltaB = (((fmax - color.b) / 6.0) + (delta / 2.0)) / delta;            
+            if (color.r == fmax )
+                hsl.x = deltaB - deltaG; 
+            else if (color.g == fmax)
+                hsl.x = (1.0 / 3.0) + deltaR - deltaB;
+            else if (color.b == fmax)
+                hsl.x = (2.0 / 3.0) + deltaG - deltaR;             
+            if (hsl.x < 0.0)
+                hsl.x += 1.0; 
+            else if (hsl.x > 1.0)
+                hsl.x -= 1.0; 
+        }
+        return hsl;
+    }
 
-            canvas {
-                width: 100%;
-                height: 100%;
-            }
+    lowp float HueToRGB(lowp float f1, lowp float f2, lowp float hue)
+    {
+        if (hue < 0.0)
+            hue += 1.0;
+        else if (hue > 1.0)
+            hue -= 1.0;
+        lowp float res;
+        if ((6.0 * hue) < 1.0)
+            res = f1 + (f2 - f1) * 6.0 * hue;
+        else if ((2.0 * hue) < 1.0)
+            res = f2;
+        else if ((3.0 * hue) < 2.0)
+            res = f1 + (f2 - f1) * ((2.0 / 3.0) - hue) * 6.0;
+        else
+            res = f1;
+        return res;
+    }
 
-            .dg {
-                opacity: 0.9;
-            }
+    lowp vec3 HSLToRGB(lowp vec3 hsl)
+    {
+        lowp vec3 rgb;
 
-            .dg .property-name {
-                overflow: visible;
-            }
+        if (hsl.y == 0.0)
+            rgb = vec3(hsl.z); // Luminance
+        else
+        {
+            lowp float f2;
+            
+            if (hsl.z < 0.5)
+                f2 = hsl.z * (1.0 + hsl.y);
+            else
+                f2 = (hsl.z + hsl.y) - (hsl.y * hsl.z);
+            
+            lowp float f1 = 2.0 * hsl.z - f2;
+            
+            rgb.r = HueToRGB(f1, f2, hsl.x + (1.0/3.0));
+            rgb.g = HueToRGB(f1, f2, hsl.x);
+            rgb.b= HueToRGB(f1, f2, hsl.x - (1.0/3.0));
+        }
 
-            .bigFont {
-                font-size: 150%;
-                color: #8C8C8C;
-            }
+        return rgb;
+    }
+float ov(float base, float blend) {
+    return base<0.5?(2.0*base*blend):(1.0-2.0*(1.0-base)*(1.0-blend));}
+vec3 ov3(vec3 a, vec3 b){
+    return vec3(ov(a.x,b.x),ov(a.y,b.y),ov(a.z,b.z));}
+float sv(vec2 uv){return length(texture2D(u_buffer1, uv).xyz);}    
+vec2 g(vec2 uv,float e){    
+    return vec2(sv(uv+vec2(e,0.))-sv(uv-vec2(e,0.)),sv(uv+vec2(0.,e))-sv(uv-vec2(0.,e)))/e;}
+float rand (float t){return fract(sin(dot(t,45.023))*4521.023);}
+void main() {
+    vec2 uv = gl_FragCoord.xy / u_resolution.xy;
+    vec3 diff = vec3( vec2(1.0) / u_resolution.xy, 0.0);
+    vec2 mouse = u_mouse.xy / u_resolution.xy;
+    //vec2 mouse = vec2(sin(u_time)*0.5+0.5,0.5);
+    float mp = smoothstep(100., 0., length((mouse - uv) * u_resolution) );
+	float mp2 =smoothstep(300.,0.,length((mouse-uv)*u_resolution.xy));
+#if defined( BUFFER_0 )
+    // Ping
 
-            .cr.function.appBigFont {
-                font-size: 150%;
-                line-height: 27px;
-                color: #A5F8D3;
-                background-color: #023C40;
-            }
+	vec4 center = texture2D(u_buffer0, uv);
+    float top = texture2D(u_buffer0, uv-diff.zy).x;
+    float left = texture2D(u_buffer0, uv-diff.xz).x;
+    float right = texture2D(u_buffer0, uv+diff.xz).x;
+    float bottom = texture2D(u_buffer0, uv+diff.zy).x;
+    float red = -(center.y-0.5)*2.+(top+left+right+bottom-2.);
+    red += mp;
+    red *= 0.995;
+    red *= step(0.1,u_time);
+    red = 0.5 +red*0.5;
+    red = clamp(red,0.,1.);
+    gl_FragColor = vec4(red,center.x,mix(0.55,0.9,mix(red,0.5,mp2)),0.);
+    
+	#elif defined( BUFFER_1 )
+    
+    vec2 p2 = gl_FragCoord.xy;	
+						
+	p2 = 5.*(p2)/u_resolution.xy;									
 
-            .cr.function.appBigFont .property-name {
-                float: none;
-            }
+	float k2 =texture2D(u_buffer0, vec2(uv)).z;
+    vec4 k3 = k2 +sin(2.*sin(vec4(k2)*10.)+p2.yxyy-p2.yyxy*.5)/12.;
+    lowp float lightness = RGBToL(k3.rgb);
+    float s1 = 0.144;
+    float s2 = -0.312;
+    float s3 = -0.144;
+    float m1 = 0.232;
+    float m2 = -0.192;
+    float m3 = 0.128;
+    float l1 = -0.136;
+    float l2 = 0.096;
+    float l3 = 0.136;
+    lowp vec3 s = smoothstep(1./1.5,0.,lightness)*(vec3(s1,s2,s3));
+    lowp vec3 m = smoothstep(0.,1./3.,lightness)*smoothstep(1.,2./3.,lightness)*(vec3(m1,m2,m3));
+    lowp vec3 l = smoothstep(2./3.,1.,lightness)*(vec3(l1,l2,l3));
+    lowp vec3 newColor = k3.xyz+s+m+l ;
+        newColor = clamp(newColor, 0.0, 1.0); 
+		lowp vec3 newHSL = clamp(RGBToHSL(newColor),0.,1.);
+        lowp float oldLum = RGBToL(k3.xyz);
+        k3.xyz = HSLToRGB(vec3(newHSL.x, newHSL.y, oldLum));
+    vec3 mask = mix(vec3(0.,0.,0.368),vec3(-3.,0.12,0.12),distance((-1.+2.*uv)*0.464,vec2(0.)));
+    //vec3 mask = mix(vec3(1.,1.,1.),vec3(0.,0.,0.),distance((-1.+2.*uv)*0.464,vec2(0.)));
+    vec3 k4 =ov3(clamp(k3.xyz,0.,1.),mask);
+	 gl_FragColor = vec4(k4,1.);
+#else
+    // Main Buffer
+  vec3 n = vec3(g(uv,1./u_resolution.y),500.);
+    n=normalize(n);
+    vec3 li =vec3(0.5,0.5,1.);
+    float sha=clamp(dot(n,li),0.,1.0);
+	vec3 img = texture2D(u_buffer1, uv).xyz;
+		gl_FragColor =vec4(img*sha,1.);
 
-            .cr.function.appBigFont .icon {
-                position: sticky;
-                bottom: 27px;
-            }
+#endif
 
-            .icon {
-                font-family: 'iconfont';
-                font-size: 130%;
-                float: right;
-            }
+}
 
-            .twitter:before {
-                content: 'a';
-            }
 
-            .github:before {
-                content: 'b';
-            }
+" width="800" height="430"data-textures="data/moon.jpg"></canvas></div>
+     
+     <div class="clearfix grpelem" id="u1756-9" data-mu-ie-matrix="progid:DXImageTransform.Microsoft.Matrix(M11=0,M12=1,M21=-1,M22=0,SizingMethod='auto expand')" data-mu-ie-matrix-dx="-12" data-mu-ie-matrix-dy="12"><!-- content -->
+      <p>&nbsp;</p>
+      <p>&nbsp;</p>
+      <p>&nbsp;</p>
+      <p>COSA</p>
+      <p>MENTALE</p>
+     </div>
+     <div class="clearfix grpelem" id="u1762-9" data-mu-ie-matrix="progid:DXImageTransform.Microsoft.Matrix(M11=0,M12=-1,M21=1,M22=0,SizingMethod='auto expand')" data-mu-ie-matrix-dx="-12" data-mu-ie-matrix-dy="12"><!-- content -->
+      <p>&nbsp;</p>
+      <p>&nbsp;</p>
+      <p>&nbsp;</p>
+      <p>COSA</p>
+      <p>MENTALE</p>
+     </div>
+     <div class="clearfix grpelem" id="u1478-12"><!-- content -->
+      <p>Realtime Visual art</p>
+      <p>Video</p>
+      <p>Interactives experiences</p>
+      <p>VR - AR</p>
+      <p>Creative Direction</p>
+     </div>
+    </div>
+    <a class="anchor_item colelem" id="project" data-sizePolicy="fixed" data-pintopage="page_fluidx"></a>
+    <a class="nonblock nontext transition colelem" id="u1502" href="cclmainz.html" data-sizePolicy="fluidWidthHeight" data-pintopage="page_fixedCenter"><!-- content --><div class="fluid_height_spacer"></div></a>
+    <div class="clearfix colelem" id="u1529-4"><!-- content -->
+     <p>Research</p>
+    </div>
+    <div class="clearfix colelem" id="u1532-4"><!-- content -->
+     <p>02-09.10.2018</p>
+    </div>
+    <div class="clearfix colelem" id="u1535-6"><!-- content -->
+     <p id="u1535-4"><span id="u1535">CCL Lab</span><span id="u1535-2"> </span><span id="u1535-3">- Mainz</span></p>
+    </div>
+    <a class="nonblock nontext transition colelem" id="u1577" href="realvirtuality.html" data-sizePolicy="fluidWidthHeight" data-pintopage="page_fixedCenter"><!-- content --><div class="fluid_height_spacer"></div></a>
+    <div class="clearfix colelem" id="u1574-4"><!-- content -->
+     <p>VR experience</p>
+    </div>
+    <div class="clearfix colelem" id="u1568-5"><!-- content -->
+     <p id="u1568-3"><span id="u1568">Real Virtuality</span><span id="u1568-2"></span></p>
+    </div>
+    <div class="colelem" id="u1481"><!-- simple frame --></div>
+    <div class="clearfix colelem" id="pu1487-4"><!-- group -->
+     <div class="clearfix grpelem" id="u1487-4"><!-- content -->
+      <p>RealVituality.com</p>
+     </div>
+     <div class="clearfix grpelem" id="u1482-6"><!-- content -->
+      <p>© Cosa Mentale 2018</p>
+      <p>all right reserved</p>
+     </div>
+     <div class="clearfix grpelem" id="pu1483-4"><!-- column -->
+      <a class="nonblock nontext clearfix colelem" id="u1483-4" href="realvirtuality.html"><!-- content --><p>Real Virtuality</p></a>
+      <a class="nonblock nontext MuseLinkActive clearfix colelem" id="u1484-4" href="index.html"><!-- content --><p>Cosa Mentale</p></a>
+      <div class="clearfix colelem" id="u1486-4"><!-- content -->
+       <p>About</p>
+      </div>
+     </div>
+    </div>
+    <div class="clearfix colelem" id="u1485-4"><!-- content -->
+     <p>Contact</p>
+    </div>
+   </div>
+   <div class="clearfix grpelem" id="pu1769-6"><!-- group -->
+    <a class="nonblock nontext transition clearfix" id="u1769-6" href="contact.html" target="_blank" data-mu-ie-matrix="progid:DXImageTransform.Microsoft.Matrix(M11=0,M12=-1,M21=1,M22=0,SizingMethod='auto expand')" data-mu-ie-matrix-dx="-91" data-mu-ie-matrix-dy="31"><!-- content --><p>&nbsp;</p><p>&nbsp;</p><p>CONTACT</p></a>
+    <a class="nonblock nontext anim_swing transition clearfix" id="u1765-9" href="index.html#cosamentale" data-mu-ie-matrix="progid:DXImageTransform.Microsoft.Matrix(M11=0,M12=1,M21=-1,M22=0,SizingMethod='auto expand')" data-mu-ie-matrix-dx="-28" data-mu-ie-matrix-dy="27"><!-- content --><p>&nbsp;</p><p>&nbsp;</p><p>&nbsp;</p><p>COSA</p><p>MENTALE</p></a>
+    <div id="u1608-4-wrapper">
+     <a class="nonblock nontext anim_swing clearfix" id="u1608-4" href="index.html#project"><!-- content --><p><span id="u1608">PROJECT</span></p></a>
+    </div>
+    <div id="u1611-4-wrapper">
+     <a class="nonblock nontext clearfix" id="u1611-4" href="about.html"><!-- content --><p><span id="u1611">ABOUT</span></p></a>
+    </div>
+    <div id="u1614-4-wrapper">
+     <a class="nonblock nontext clearfix" id="u1614-4" href="contact.html" target="_blank"><!-- content --><p><span id="u1614">CONTACT</span></p></a>
+    </div>
+    <div id="u1617-wrapper">
+     <div id="u1617"><!-- simple frame --></div>
+    </div>
+   </div>
+   <div class="verticalspacer" data-offset-top="2710" data-content-above-spacer="2709" data-content-below-spacer="61" data-sizePolicy="fixed" data-pintopage="page_fixedLeft"></div>
+  </div>
+  <div class="preload_images">
+   <img class="preload" src="images/ccl_previewcomplete.png?crc=3984142929" alt=""/>
+   <img class="preload" src="images/realvirtuality_previewcomplete.png?crc=139240160" alt=""/>
+  </div>
+  <!-- Other scripts -->
+  <script type="text/javascript">
+   // Decide whether to suppress missing file error or not based on preference setting
+var suppressMissingFileError = false
+</script>
+  <script type="text/javascript">
+   window.Muse.assets.check=function(c){if(!window.Muse.assets.checked){window.Muse.assets.checked=!0;var b={},d=function(a,b){if(window.getComputedStyle){var c=window.getComputedStyle(a,null);return c&&c.getPropertyValue(b)||c&&c[b]||""}if(document.documentElement.currentStyle)return(c=a.currentStyle)&&c[b]||a.style&&a.style[b]||"";return""},a=function(a){if(a.match(/^rgb/))return a=a.replace(/\s+/g,"").match(/([\d\,]+)/gi)[0].split(","),(parseInt(a[0])<<16)+(parseInt(a[1])<<8)+parseInt(a[2]);if(a.match(/^\#/))return parseInt(a.substr(1),
+16);return 0},f=function(f){for(var g=document.getElementsByTagName("link"),j=0;j<g.length;j++)if("text/css"==g[j].type){var l=(g[j].href||"").match(/\/?css\/([\w\-]+\.css)\?crc=(\d+)/);if(!l||!l[1]||!l[2])break;b[l[1]]=l[2]}g=document.createElement("div");g.className="version";g.style.cssText="display:none; width:1px; height:1px;";document.getElementsByTagName("body")[0].appendChild(g);for(j=0;j<Muse.assets.required.length;){var l=Muse.assets.required[j],k=l.match(/([\w\-\.]+)\.(\w+)$/),i=k&&k[1]?
+k[1]:null,k=k&&k[2]?k[2]:null;switch(k.toLowerCase()){case "css":i=i.replace(/\W/gi,"_").replace(/^([^a-z])/gi,"_$1");g.className+=" "+i;i=a(d(g,"color"));k=a(d(g,"backgroundColor"));i!=0||k!=0?(Muse.assets.required.splice(j,1),"undefined"!=typeof b[l]&&(i!=b[l]>>>24||k!=(b[l]&16777215))&&Muse.assets.outOfDate.push(l)):j++;g.className="version";break;case "js":j++;break;default:throw Error("Unsupported file type: "+k);}}c?c().jquery!="1.8.3"&&Muse.assets.outOfDate.push("jquery-1.8.3.min.js"):Muse.assets.required.push("jquery-1.8.3.min.js");
+g.parentNode.removeChild(g);if(Muse.assets.outOfDate.length||Muse.assets.required.length)g="Some files on the server may be missing or incorrect. Clear browser cache and try again. If the problem persists please contact website author.",f&&Muse.assets.outOfDate.length&&(g+="\nOut of date: "+Muse.assets.outOfDate.join(",")),f&&Muse.assets.required.length&&(g+="\nMissing: "+Muse.assets.required.join(",")),suppressMissingFileError?(g+="\nUse SuppressMissingFileError key in AppPrefs.xml to show missing file error pop up.",console.log(g)):alert(g)};location&&location.search&&location.search.match&&location.search.match(/muse_debug/gi)?
+setTimeout(function(){f(!0)},5E3):f()}};
+var muse_init=function(){require.config({baseUrl:""});require(["jquery","museutils","whatinput","jquery.watch"],function(c){var $ = c;$(document).ready(function(){try{
+window.Muse.assets.check($);/* body */
+Muse.Utils.transformMarkupToFixBrowserProblemsPreInit();/* body */
+Muse.Utils.prepHyperlinks(true);/* body */
+Muse.Utils.makeButtonsVisibleAfterSettingMinWidth();/* body */
+Muse.Utils.fullPage('#page');/* 100% height page */
+Muse.Utils.showWidgetsWhenReady();/* body */
+Muse.Utils.transformMarkupToFixBrowserProblems();/* body */
+}catch(b){if(b&&"function"==typeof b.notify?b.notify():Muse.Assert.fail("Error calling selector function: "+b),false)throw b;}})})};
 
-            .app:before {
-                content: 'c';
-            }
+</script>
 
-            .discord:before {
-                content: 'd';
-            }
+<script>
+    var canvas = document.getElementById("glslCanvas");
+    var sandbox = new GlslCanvas(canvas);
+    var texCounter = 0;
+    var sandbox_content = "";
+    var sandbox_title = "";
+    var sandbox_author = "";
+    var sandbox_thumbnail = "";
+    canvas.style.width = '100%';
+    canvas.style.height = '100%';
+</script>
 
-            .promo {
-                display: none;
-                /* display: table; */
-                position: absolute;
-                top: 0;
-                left: 0;
-                width: 100%;
-                height: 100%;
-                z-index: 1;
-                overflow: auto;
-                color: lightblue;
-                background-color: rgba(0,0,0,0.4);
-                animation: promo-appear-animation 0.35s ease-out;
-            }
-
-            .promo-middle {
-                display: table-cell;
-                vertical-align: middle;
-            }
-
-            .promo-content {
-                width: 80vw;
-                height: 80vh;
-                max-width: 80vh;
-                max-height: 80vw;
-                margin: auto;
-                padding: 0;
-                font-size: 2.8vmax;
-                font-family: Futura, "Trebuchet MS", Arial, sans-serif;
-                text-align: center;
-                background-image: url("promo_back.png");
-                background-position: center;
-                background-repeat: no-repeat;
-                background-size: cover;
-                border-radius: 15px;
-                box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2), 0 6px 20px 0 rgba(0,0,0,0.19);
-            }
-
-            .promo-header {
-                height: 10%;
-                padding: 2px 16px;
-            }
-
-            .promo-close {
-                width: 10%;
-                height: 100%;
-                text-align: left;
-                float: left;
-                font-size: 1.3em;
-                /* transition: 0.2s; */
-            }
-
-            .promo-close:hover {
-                /* transform: scale(1.25); */
-                cursor: pointer;
-            }
-
-            .promo-body {
-                padding: 8px 16px 16px 16px;
-                margin: auto;
-            }
-
-            .promo-body p {
-                margin-top: 0;
-                mix-blend-mode: color-dodge;
-            }
-
-            .link {
-                width: 100%;
-                display: inline-block;
-            }
-
-            .link img {
-                width: 100%;
-            }
-
-            @keyframes promo-appear-animation {
-                0% {
-                    transform: scale(2.0);
-                    opacity: 0;
-                }
-                100% {
-                    transform: scale(1.0);
-                    opacity: 1;
-                }
-            }
-        </style>
-        <script>
-            window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
-            ga('create', 'UA-105392568-1', 'auto');
-            ga('send', 'pageview');
-        </script>
-        <script async src="https://www.google-analytics.com/analytics.js"></script>
-    </head>
-    <body>
-        <canvas></canvas>
-
-        <!-- Mother of God, pls forgive me -->
-        <div class="promo">
-            <div class="promo-middle">
-                <div class="promo-content">
-                    <div class="promo-header">
-                        <span class="promo-close">&times;</span>
-                    </div>
-                    <div class="promo-body">
-                        <p>Try Fluid Simulation app!</p>
-                        <div class="links-container">
-                            <a class="link" id="apple_link" target="_blank">
-                                <img class="link-img" alt="Download on the App Store" src="app_badge.png"/>
-                            </a>
-                            <a class="link" id="google_link" target="_blank">
-                                <img class="link-img" alt="Get it on Google Play" src="gp_badge.png"/>
-                            </a>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <script src="./script.js"></script>
-    </body>
+  <!-- RequireJS script -->
+  <script src="scripts/require.js?crc=7928878" type="text/javascript" async data-main="scripts/museconfig.js?crc=4286661555" onload="if (requirejs) requirejs.onError = function(requireType, requireModule) { if (requireType && requireType.toString && requireType.toString().indexOf && 0 <= requireType.toString().indexOf('#scripterror')) window.Muse.assets.check(); }" onerror="window.Muse.assets.check();"></script>
+   </body>
 </html>
