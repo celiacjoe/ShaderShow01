@@ -3,7 +3,7 @@ body {
 }
 canvas {
   display : inline-block;
-  width : 100%;
+  width : 50%;
   height : 100%;
   margin : auto;
   padding : 0;
