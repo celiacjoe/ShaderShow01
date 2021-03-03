@@ -12,7 +12,7 @@ canvas {
 }
 button {
   display : block;
-  font-size : inherit;
+  font-size : inherit; 
   margin : auto;
   padding : 0.6em;
 }
