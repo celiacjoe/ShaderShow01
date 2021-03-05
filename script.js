@@ -60,7 +60,7 @@ if (!ext.supportLinearFiltering) {
     config.DYE_RESOLUTION = 512;
     config.SHADING = false;
     config.BLOOM = false;
-    config.SUNRAYS = false;
+  
 }
 
 
