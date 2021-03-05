@@ -1,53 +1,383 @@
+
 <!DOCTYPE html>
-<html>
-    <head>
-        <meta charset="utf-8">
-        <meta http-equiv="Cache-Control" content="no-cache">
+<html lang="en">
+	<head>
+		<title>three.js webgl - shader [Monjori]</title>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+		<link type="text/css" rel="stylesheet" href="main.css">
+	</head>
+	<body>
 
-        <title>test-shader</title>
+		<div id="container"></div>
 
+    <script src="js/three.js"></script>
+    <script src="js/EffectComposer.js"></script>
+    <script src="js/ShaderPass.js"></script>
+    <script src="js/RenderPass.js"></script>
+    <script src="js/CopyShader.js"></script>
+		<script id="vertexShader" type="x-shader/x-vertex">
 
-        <script type="text/javascript" src="dat.gui.min.js"></script>
-        <style>
-            @font-face {
-                font-family: 'iconfont';
-                src: url('iconfont.ttf') format('truetype');
-            }
+			varying vec2 vUv;
 
-            * {
-                user-select: none;
-            }
+			void main()	{
+				vUv = uv;
+				gl_Position = vec4( position, 1.0 );
 
-            html, body {
-                overflow: hidden;
-                background-color: #000;
-            }
+			}
 
-            body {
-                margin: 0;
-                position: fixed;
-                width: 100%;
-                height: 100%;
-            }
+		</script>
 
-            canvas {
-                width: 100%;
-                height: 100%;
-            }
+		<script id="fragmentShader" type="x-shader/x-fragment">
 
-        </style>
-        <script>
-            window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
-            ga('create', 'UA-105392568-1', 'auto');
-            ga('send', 'pageview');
-        </script>
-        <script async src="https://www.google-analytics.com/analytics.js"></script>
-    </head>
-    <body>
-        <canvas></canvas>
+			varying vec2 vUv;
+      uniform vec2 mouse;
+      uniform vec2 resolution;
+			uniform float time;
+
+			void main()	{
+        vec2 uv =  vUv;
+        vec2 fac = vec2(resolution.x/resolution.y,1.);
+        uv *= fac;
+				float a = time ;
+				float d, e, f, g = 1.0 / 40.0 ,h ,i ,r ,q;
+				float d1 = smoothstep(0.05,0.04,distance(mouse*fac,uv));
+				gl_FragColor = vec4( d1 );
+			}
+
+		</script>
+
+		<script type="module">
 
 
 
-        <script src="./script.js"></script>
-    </body>
+			let camera, scene, renderer;
+
+			let uniforms;
+
+			init();
+			animate();
+
+			function init() {
+
+				const container = document.getElementById( 'container' );
+        renderer = new THREE.WebGLRenderer();
+        renderer.setPixelRatio( window.devicePixelRatio );
+        container.appendChild( renderer.domElement );
+
+
+
+				camera = new THREE.OrthographicCamera( - 1, 1, 1, - 1, 0, 1 );
+
+				scene = new THREE.Scene();
+
+				const geometry = new THREE.PlaneGeometry( 2, 2 );
+
+				uniforms = {
+					time: { value: 1.0 },
+          resolution: {type: "v2",value: new THREE.Vector2()},
+          mouse: {type: "v2",value: new THREE.Vector2()}
+				};
+
+				const material = new THREE.ShaderMaterial( {
+
+					uniforms: uniforms,
+					vertexShader: document.getElementById( 'vertexShader' ).textContent,
+					fragmentShader: document.getElementById( 'fragmentShader' ).textContent
+
+				} );
+
+				const mesh = new THREE.Mesh( geometry, material );
+				scene.add( mesh );
+
+        /*var composer = new THREE.EffectComposer(renderer);
+
+        var renderPass = new THREE.RenderPass(scene, camera);
+        composer.addPass(renderPass);*/
+
+
+          onWindowResize();
+
+				window.addEventListener( 'resize', onWindowResize );
+
+			}
+
+			function onWindowResize() {
+
+				renderer.setSize( window.innerWidth, window.innerHeight );
+        uniforms.resolution.value.x = renderer.domElement.width;
+        uniforms.resolution.value.y = renderer.domElement.height;
+			}
+
+			//
+     document.onmousemove = function(e) {
+        uniforms.mouse.value.x = e.pageX / window.innerWidth;
+        uniforms.mouse.value.y = 1.-e.pageY / window.innerHeight;
+      }
+
+			function animate() {
+
+				requestAnimationFrame( animate );
+
+				uniforms[ 'time' ].value = performance.now() / 1000;
+
+				renderer.render( scene, camera );
+        //composer.render();
+			}
+			var DragControls = function ( _objects, _camera, _domElement ) {
+
+				var _plane = new Plane();
+				var _raycaster = new Raycaster();
+
+				var _mouse = new Vector2();
+				var _offset = new Vector3();
+				var _intersection = new Vector3();
+				var _worldPosition = new Vector3();
+				var _inverseMatrix = new Matrix4();
+				var _intersections = [];
+
+				var _selected = null, _hovered = null;
+
+				//
+
+				var scope = this;
+
+				function activate() {
+
+					_domElement.addEventListener( 'mousemove', onDocumentMouseMove, false );
+					_domElement.addEventListener( 'mousedown', onDocumentMouseDown, false );
+					_domElement.addEventListener( 'mouseup', onDocumentMouseCancel, false );
+					_domElement.addEventListener( 'mouseleave', onDocumentMouseCancel, false );
+					_domElement.addEventListener( 'touchmove', onDocumentTouchMove, false );
+					_domElement.addEventListener( 'touchstart', onDocumentTouchStart, false );
+					_domElement.addEventListener( 'touchend', onDocumentTouchEnd, false );
+
+				}
+
+				function deactivate() {
+
+					_domElement.removeEventListener( 'mousemove', onDocumentMouseMove, false );
+					_domElement.removeEventListener( 'mousedown', onDocumentMouseDown, false );
+					_domElement.removeEventListener( 'mouseup', onDocumentMouseCancel, false );
+					_domElement.removeEventListener( 'mouseleave', onDocumentMouseCancel, false );
+					_domElement.removeEventListener( 'touchmove', onDocumentTouchMove, false );
+					_domElement.removeEventListener( 'touchstart', onDocumentTouchStart, false );
+					_domElement.removeEventListener( 'touchend', onDocumentTouchEnd, false );
+
+				}
+
+				function dispose() {
+
+					deactivate();
+
+				}
+
+				function getObjects() {
+
+					return _objects;
+
+				}
+
+				function onDocumentMouseMove( event ) {
+
+					event.preventDefault();
+
+					var rect = _domElement.getBoundingClientRect();
+
+					uniforms.mouse.value.x = ( ( event.clientX - rect.left ) / rect.width ) * 2 - 1;
+					uniforms.mouse.value.y = - ( ( event.clientY - rect.top ) / rect.height ) * 2 + 1;
+
+					_raycaster.setFromCamera( _mouse, _camera );
+
+					if ( _selected && scope.enabled ) {
+
+						if ( _raycaster.ray.intersectPlane( _plane, _intersection ) ) {
+
+							_selected.position.copy( _intersection.sub( _offset ).applyMatrix4( _inverseMatrix ) );
+
+						}
+
+						scope.dispatchEvent( { type: 'drag', object: _selected } );
+
+						return;
+
+					}
+
+					_intersections.length = 0;
+
+					_raycaster.setFromCamera( _mouse, _camera );
+					_raycaster.intersectObjects( _objects, true, _intersections );
+
+					if ( _intersections.length > 0 ) {
+
+						var object = _intersections[ 0 ].object;
+
+						_plane.setFromNormalAndCoplanarPoint( _camera.getWorldDirection( _plane.normal ), _worldPosition.setFromMatrixPosition( object.matrixWorld ) );
+
+						if ( _hovered !== object ) {
+
+							scope.dispatchEvent( { type: 'hoveron', object: object } );
+
+							_domElement.style.cursor = 'pointer';
+							_hovered = object;
+
+						}
+
+					} else {
+
+						if ( _hovered !== null ) {
+
+							scope.dispatchEvent( { type: 'hoveroff', object: _hovered } );
+
+							_domElement.style.cursor = 'auto';
+							_hovered = null;
+
+						}
+
+					}
+
+				}
+
+				function onDocumentMouseDown( event ) {
+
+					event.preventDefault();
+
+					_intersections.length = 0;
+
+					_raycaster.setFromCamera( _mouse, _camera );
+					_raycaster.intersectObjects( _objects, true, _intersections );
+
+					if ( _intersections.length > 0 ) {
+
+						_selected = ( scope.transformGroup === true ) ? _objects[ 0 ] : _intersections[ 0 ].object;
+
+						if ( _raycaster.ray.intersectPlane( _plane, _intersection ) ) {
+
+							_inverseMatrix.getInverse( _selected.parent.matrixWorld );
+							_offset.copy( _intersection ).sub( _worldPosition.setFromMatrixPosition( _selected.matrixWorld ) );
+
+						}
+
+						_domElement.style.cursor = 'move';
+
+						scope.dispatchEvent( { type: 'dragstart', object: _selected } );
+
+					}
+
+
+				}
+
+				function onDocumentMouseCancel( event ) {
+
+					event.preventDefault();
+
+					if ( _selected ) {
+
+						scope.dispatchEvent( { type: 'dragend', object: _selected } );
+
+						_selected = null;
+
+					}
+
+					_domElement.style.cursor = _hovered ? 'pointer' : 'auto';
+
+				}
+
+				function onDocumentTouchMove( event ) {
+
+					event.preventDefault();
+					event = event.changedTouches[ 0 ];
+
+					var rect = _domElement.getBoundingClientRect();
+
+					uniforms.mouse.value.x = ( ( event.clientX - rect.left ) / rect.width ) * 2 - 1;
+					uniforms.mouse.value.y = - ( ( event.clientY - rect.top ) / rect.height ) * 2 + 1;
+
+					_raycaster.setFromCamera( _mouse, _camera );
+
+					if ( _selected && scope.enabled ) {
+
+						if ( _raycaster.ray.intersectPlane( _plane, _intersection ) ) {
+
+							_selected.position.copy( _intersection.sub( _offset ).applyMatrix4( _inverseMatrix ) );
+
+						}
+
+						scope.dispatchEvent( { type: 'drag', object: _selected } );
+
+						return;
+
+					}
+
+				}
+
+				function onDocumentTouchStart( event ) {
+
+					event.preventDefault();
+					event = event.changedTouches[ 0 ];
+
+					var rect = _domElement.getBoundingClientRect();
+
+					uniforms.mouse.value.x = ( ( event.clientX - rect.left ) / rect.width ) * 2 - 1;
+					uniforms.mouse.value.y = - ( ( event.clientY - rect.top ) / rect.height ) * 2 + 1;
+
+					_intersections.length = 0;
+
+					_raycaster.setFromCamera( _mouse, _camera );
+					 _raycaster.intersectObjects( _objects, true, _intersections );
+
+					if ( _intersections.length > 0 ) {
+
+						_selected = ( scope.transformGroup === true ) ? _objects[ 0 ] : _intersections[ 0 ].object;
+
+						_plane.setFromNormalAndCoplanarPoint( _camera.getWorldDirection( _plane.normal ), _worldPosition.setFromMatrixPosition( _selected.matrixWorld ) );
+
+						if ( _raycaster.ray.intersectPlane( _plane, _intersection ) ) {
+
+							_inverseMatrix.getInverse( _selected.parent.matrixWorld );
+							_offset.copy( _intersection ).sub( _worldPosition.setFromMatrixPosition( _selected.matrixWorld ) );
+
+						}
+
+						_domElement.style.cursor = 'move';
+
+						scope.dispatchEvent( { type: 'dragstart', object: _selected } );
+
+					}
+
+
+				}
+
+				function onDocumentTouchEnd( event ) {
+
+					event.preventDefault();
+
+					if ( _selected ) {
+
+						scope.dispatchEvent( { type: 'dragend', object: _selected } );
+
+						_selected = null;
+
+					}
+
+					_domElement.style.cursor = 'auto';
+
+				}
+
+				activate();
+
+				// API
+
+				this.enabled = true;
+				this.transformGroup = false;
+
+				this.activate = activate;
+				this.deactivate = deactivate;
+				this.dispose = dispose;
+				this.getObjects = getObjects;
+
+			};
+		</script>
+
+	</body>
 </html>
