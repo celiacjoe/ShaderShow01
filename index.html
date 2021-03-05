@@ -1,18 +1,131 @@
+
 <!DOCTYPE html>
-<html lang="en" >
-<head>
-  <meta charset="UTF-8">
-  <title>CodePen - ShaderToy Buffers to Three.js RenderTarget</title>
-  <link rel="stylesheet" href="./style.css">
+<html lang="en">
+	<head>
+		<title>three.js webgl - shader [Monjori]</title>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+		<link type="text/css" rel="stylesheet" href="main.css">
+	</head>
+	<body>
 
-</head>
-<body>
-<!-- partial:index.partial.html -->
+		<div id="container"></div>
 
-<!-- partial -->
+    <script src="js/three.js"></script>
+    <script src="js/EffectComposer.js"></script>
+    <script src="js/ShaderPass.js"></script>
+    <script src="js/RenderPass.js"></script>
+    <script src="js/CopyShader.js"></script>
+		<script id="vertexShader" type="x-shader/x-vertex">
 
-<script src="js/three.min.js"></script>
-  <script  src="./script.js"></script>
+			varying vec2 vUv;
 
-</body>
+			void main()	{
+				vUv = uv;
+				gl_Position = vec4( position, 1.0 );
+
+			}
+
+		</script>
+
+		<script id="fragmentShader" type="x-shader/x-fragment">
+
+			varying vec2 vUv;
+      uniform vec2 mouse;
+      uniform vec2 resolution;
+			uniform float time;
+
+			void main()	{
+        vec2 uv =  vUv;
+        vec2 fac = vec2(resolution.x/resolution.y,1.);
+        uv *= fac;
+				float a = time ;
+				float d, e, f, g = 1.0 / 40.0 ,h ,i ,r ,q;
+				float d1 = smoothstep(0.05,0.04,distance(mouse*fac,uv));
+				gl_FragColor = vec4( d1 );
+			}
+
+		</script>
+
+		<script type="module">
+
+
+
+			let camera, scene, renderer;
+
+			let uniforms;
+
+			init();
+			animate();
+
+			function init() {
+
+				const container = document.getElementById( 'container' );
+        renderer = new THREE.WebGLRenderer();
+        renderer.setPixelRatio( window.devicePixelRatio );
+        container.appendChild( renderer.domElement );
+
+
+
+				camera = new THREE.OrthographicCamera( - 1, 1, 1, - 1, 0, 1 );
+
+				scene = new THREE.Scene();
+
+				const geometry = new THREE.PlaneGeometry( 2, 2 );
+
+				uniforms = {
+					time: { value: 1.0 },
+          resolution: {type: "v2",value: new THREE.Vector2()},
+          mouse: {type: "v2",value: new THREE.Vector2()}
+				};
+
+				const material = new THREE.ShaderMaterial( {
+
+					uniforms: uniforms,
+					vertexShader: document.getElementById( 'vertexShader' ).textContent,
+					fragmentShader: document.getElementById( 'fragmentShader' ).textContent
+
+				} );
+
+				const mesh = new THREE.Mesh( geometry, material );
+				scene.add( mesh );
+
+        /*var composer = new THREE.EffectComposer(renderer);
+
+        var renderPass = new THREE.RenderPass(scene, camera);
+        composer.addPass(renderPass);*/
+
+
+          onWindowResize();
+
+				window.addEventListener( 'resize', onWindowResize );
+
+			}
+
+			function onWindowResize() {
+
+				renderer.setSize( window.innerWidth, window.innerHeight );
+        uniforms.resolution.value.x = renderer.domElement.width;
+        uniforms.resolution.value.y = renderer.domElement.height;
+			}
+
+			//
+      document.onmousemove = function(e) {
+        uniforms.mouse.value.x = e.pageX / window.innerWidth;
+        uniforms.mouse.value.y = 1.-e.pageY / window.innerHeight;
+      }
+
+			function animate() {
+
+				requestAnimationFrame( animate );
+
+				uniforms[ 'time' ].value = performance.now() / 1000;
+
+				renderer.render( scene, camera );
+        //composer.render();
+			}
+
+		</script>
+
+	</body>
 </html>
