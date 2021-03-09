@@ -634,7 +634,7 @@ function splat (x, y, dx, dy, color) {
     splatProgram.bind();
     gl.uniform1f(splatProgram.uniforms.time, performance.now() / 1000);
     gl.uniform2f(splatProgram.uniforms.resolution, canvas.width , canvas.height);
-    gl.uniform2f(splatProgram.uniforms.mouse, x,1.- y);
+    gl.uniform2f(splatProgram.uniforms.mouse, x, y);
     gl.uniform1i(splatProgram.uniforms.uTarget, dye.read.attach(0));
     blit(dye.write);
     dye.swap();
