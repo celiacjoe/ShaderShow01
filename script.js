@@ -380,7 +380,7 @@ const splatShader = compileShader(gl.FRAGMENT_SHADER, `
     if(b2.z>0.)u1= uv.x;
    else u1 = uv.y;
    float vl =smoothstep(0.05,0., distance(0.5,mix(fract(b2.y*10.),0.,l4)));
-   /*vec2 pos = vUv*resolution;
+   vec2 pos = vUv*resolution;
    float ang = (texture2D(uTarget,vUv).y-.5)*6.38;
    mat2 m = mat2(cos(ang),sin(ang),-sin(ang),cos(ang));
    vec2 v=vec2(0);
@@ -404,7 +404,7 @@ const splatShader = compileShader(gl.FRAGMENT_SHADER, `
    }
    float t1 =  texture2D(uTarget,fract((pos+v*vec2(-2,2))/resolution.xy)).x;
    float t2 =t1*0.98+vl;
-        gl_FragColor = vec4(vl,l5,l3,v5);
+        gl_FragColor = vec4(t2,l5,l3,v5);
       //gl_FragColor = vec4(distance(uc,mouse));
     }
 `);
