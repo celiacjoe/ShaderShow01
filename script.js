@@ -594,11 +594,8 @@ function resizeCanvas () {
 
 function applyInputs () {
 
-    pointers.forEach(p => {
-
-            splatPointer(p);
-
-    });
+  //  pointers.forEach(p => {splatPointer();});
+  splatPointer( pointers[0]);
 }
 
 function render (target) {
@@ -625,12 +622,11 @@ function drawDisplay (target) {
 }*/
 
 function splatPointer (pointer) {
-    let dx = pointer.deltaX * config.SPLAT_FORCE;
-    let dy = pointer.deltaY * config.SPLAT_FORCE;
-    splat(pointer.texcoordX, pointer.texcoordY, dx, dy, pointer.color);
+
+    splat(pointer.texcoordX, pointer.texcoordY);
 }
 
-function splat (x, y, dx, dy, color) {
+function splat (x, y) {
     splatProgram.bind();
     gl.uniform1f(splatProgram.uniforms.time, performance.now() / 1000);
     gl.uniform2f(splatProgram.uniforms.resolution, canvas.width , canvas.height);
