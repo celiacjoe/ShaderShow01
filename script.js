@@ -11,8 +11,8 @@ let config = {
     PAUSED: false,
     BACK_COLOR: { r: 0, g: 0, b: 0 },
     TRANSPARENT: false,
-    SUNRAYS: true,
-    SUNRAYS_RESOLUTION: 1024,
+  //  SUNRAYS: true,
+  //  SUNRAYS_RESOLUTION: 1024,
 }
 
 function pointerPrototype () {
@@ -293,23 +293,17 @@ const displayShaderSource = `
     precision highp float;
     precision highp sampler2D;
     varying vec2 vUv;
-    uniform sampler2D uSunrays;
-    float sv(vec2 uv){return length(texture2D(uSunrays, uv).xyz);}
-vec2 g(vec2 uv,float e){
-return vec2(sv(uv+vec2(e,0.))-sv(uv-vec2(e,0.)),sv(uv+vec2(0.,e))-sv(uv-vec2(0.,e)))/e;}
+    uniform sampler2D uTexture;
     void main () {
       vec2 uv = vUv;
-      float e = 0.01;
-     vec3 n = vec3(g(uv,0.001),250.);
-  n=normalize(n);
-  vec3 li =vec3(0.5,0.5,1.);
-  float sha=clamp(dot(n,li),0.,1.0);
-        vec3 sunrays = texture2D(uSunrays, vUv).xyz;
-        gl_FragColor = vec4(sunrays*sha,1.);
+
+        vec3 c = texture2D(uTexture, vUv).rgb;
+        vec3 v1 = vec3(1.-c.x);
+        gl_FragColor = vec4(v1,1.);
     }
 `;
 
-const sunraysShader = compileShader(gl.FRAGMENT_SHADER, `
+/*const sunraysShader = compileShader(gl.FRAGMENT_SHADER, `
     precision highp float;
     precision highp sampler2D;
 
@@ -352,34 +346,65 @@ float k2 = texture2D(uTexture,vUv).z;
   vec3 k4 =ov3(clamp(k3.xyz,0.,1.),mask);
         gl_FragColor = vec4(k4,0.);
     }
-`);
+`);*/
 
 const splatShader = compileShader(gl.FRAGMENT_SHADER, `
     precision highp float;
     precision highp sampler2D;
 
     varying vec2 vUv;
+    uniform float time;
     uniform sampler2D uTarget;
-    uniform float aspectRatio;
-    uniform vec2 point;
+    uniform vec2 resolution;
+    uniform vec2 mouse;
 
     void main () {
-        vec2 p = vUv - point.xy;
-        p.x *= aspectRatio;
-        vec3 diff = vec3(0.001*vec2(1.,aspectRatio),0.);
-        float mp =smoothstep(0.1,0.,length(p));
-        float mp2 =smoothstep(.3,0.,length(p));
-        vec4 center =texture2D(uTarget, vUv);
-    float top = texture2D(uTarget, vUv-diff.zy).x;
-    float left = texture2D(uTarget, vUv-diff.xz).x;
-    float right = texture2D(uTarget, vUv+diff.xz).x;
-    float bottom = texture2D(uTarget, vUv+diff.zy).x;
-    float red = -(center.y-0.5)*2.+(top+left+right+bottom-2.);
-    red += mp;red *= 0.995;
-    //red *= step(0.1,iTime);
-    red = 0.5 +red*0.5;
-    red = clamp(red,0.,1.);
-        gl_FragColor = vec4(red,center.x,mix(0.55,0.9,mix(red,0.5,mp2)), 1.0);
+        vec2 uv = -1.+2.*vUv;
+        vec2 uc = vUv;
+        uv.x *= resolution.x/resolution.y;
+        vec3 b2 = texture2D(uTarget,uc).xyz;
+        float an = step(0.5,fract(time));
+    vec2 v2 = (mouse-0.5)*0.25* mix(vec2(1.,0.),vec2(0.,1.),an)*vec2(-1.,1.);
+    vec2 v3 = vec2(texture2D(uTarget,vec2(0.25,0.8)).a,texture2D(uTarget,vec2(0.75,0.8)).a);
+    vec2 v4 =clamp(v2+v3,-1.,1.);
+    float v5 = mix(an,mix(v4.x,v4.y,step(0.5,uc.x)),step(0.5,uc.y));
+    vec2 p1 = v3;
+    float p2 = length(uv+p1);
+    float p3 = mix(length(uv.x+p1.x),length(uv.y+p1.y),1.-an);
+    float l1 = max(step(0.2, length(uv.x+p1.x)),step(0.2, length(uv.y+p1.y)));
+    float l3 = min(l1,b2.z+0.01);
+    float l4 = step(0.9,l3);
+    float l5 = min(p3,b2.y+0.01);
+    vec2 uc2 = uv;
+    float u1 = 0.;
+    if(b2.z>0.)u1= uv.x;
+   else u1 = uv.y;
+   float vl =smoothstep(0.05,0., distance(0.5,mix(fract(b2.y*10.),0.,l4)));
+   vec2 pos = vUv*resolution;
+   float ang = (texture2D(uTarget,vUv).y-.5)*6.38;
+   mat2 m = mat2(cos(ang),sin(ang),-sin(ang),cos(ang));
+   vec2 v=vec2(0);
+   vec2 b = vec2(cos(ang),sin(ang));
+  float bbmax = pow(resolution.y,2.);
+   for(int l=0;l<2;l++)
+   {
+       if ( dot(b,b) > bbmax ) break;
+       vec2 p = b;
+       for(int i=0;i< 2;i++)
+       {
+       vec2 p2 = b;
+       vec2 pos2 = pos+p;
+       float rot = 0.;
+       rot += dot( texture2D(uTarget,fract((pos2+p2)/resolution)).xy-0.5,p.yx);
+       p2 = m * p2;
+       v+=p.yx*rot/dot(b,b)*( texture2D(uTarget,vUv).x)*5.;
+       p = m*p;
+       }
+       b*=100.;
+   }
+   float t1 =  texture2D(uTarget,fract((pos+v*vec2(-2,2))/resolution.xy)).x;
+   float t2 =t1*0.98+vl;
+        gl_FragColor = vec4(t2,l5,l3,v5);
     }
 `);
 
@@ -419,9 +444,9 @@ function CHECK_FRAMEBUFFER_STATUS () {
 }
 
 let dye;
-let sunrays;
+//let sunrays;
 
-const sunraysProgram         = new Program(baseVertexShader, sunraysShader);
+//const sunraysProgram         = new Program(baseVertexShader, sunraysShader);
 const splatProgram           = new Program(baseVertexShader, splatShader);
 
 
@@ -445,10 +470,10 @@ function initFramebuffers () {
         dye = resizeDoubleFBO(dye, dyeRes.width, dyeRes.height, rgba.internalFormat, rgba.format, texType, filtering);
 
 
-    initSunraysFramebuffers();
+    //initSunraysFramebuffers();
 }
 
-function initSunraysFramebuffers () {
+/*function initSunraysFramebuffers () {
     let res = getResolution(config.SUNRAYS_RESOLUTION);
 
     const texType = ext.halfFloatTexType;
@@ -458,7 +483,7 @@ function initSunraysFramebuffers () {
     const filtering = ext.supportLinearFiltering ? gl.LINEAR : gl.NEAREST;
 
     sunrays     = createFBO(res.width, res.height, rgba.internalFormat, rgba.format, texType, filtering);
-}
+}*/
 
 function createFBO (w, h, internalFormat, format, type, param) {
     gl.activeTexture(gl.TEXTURE0);
@@ -533,7 +558,6 @@ updateKeywords();
 initFramebuffers();
 
 let lastUpdateTime = Date.now();
-let colorUpdateTimer = 0.0;
 update();
 
 function update () {
@@ -578,7 +602,7 @@ function applyInputs () {
 
 function render (target) {
 
-        applySunrays(dye.read, dye.write, sunrays);
+      //  applySunrays(dye.read, dye.write, sunrays);
     drawDisplay(target);
 }
 
@@ -588,16 +612,16 @@ function drawDisplay (target) {
 
     displayMaterial.bind();
 
-        gl.uniform1i(displayMaterial.uniforms.uSunrays, sunrays.attach(3));
+  //      gl.uniform1i(displayMaterial.uniforms.uSunrays, sunrays.attach(3));
     blit(target);
 }
 
-function applySunrays (source, mask, destination) {
+/*function applySunrays (source, mask, destination) {
     gl.disable(gl.BLEND);
     sunraysProgram.bind();
     gl.uniform1f(sunraysProgram.uniforms.weight, config.SUNRAYS_WEIGHT);
     blit(destination);
-}
+}*/
 
 function splatPointer (pointer) {
     let dx = pointer.deltaX * config.SPLAT_FORCE;
@@ -607,9 +631,9 @@ function splatPointer (pointer) {
 
 function splat (x, y, dx, dy, color) {
     splatProgram.bind();
-
-    gl.uniform1f(splatProgram.uniforms.aspectRatio, canvas.width / canvas.height);
-    gl.uniform2f(splatProgram.uniforms.point, x, y);
+    gl.uniform1f(splatProgram.uniforms.time, performance.now() / 1000);
+    gl.uniform2f(splatProgram.uniforms.resolution, canvas.width , canvas.height);
+    gl.uniform2f(splatProgram.uniforms.mouse, x,1.- y);
     gl.uniform1i(splatProgram.uniforms.uTarget, dye.read.attach(0));
     blit(dye.write);
     dye.swap();
