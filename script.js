@@ -405,7 +405,7 @@ const splatShader = compileShader(gl.FRAGMENT_SHADER, `
    float t1 =  texture2D(uTarget,fract((pos+v*vec2(-2,2))/resolution.xy)).x;
    float t2 =t1*0.98+vl;*/
         //gl_FragColor = vec4(t2,l5,l3,v5);
-      gl_FragColor = vec4(vl,l5,l3,v5);
+      gl_FragColor = vec4(step(0.1,distance(uc,mouse)));
     }
 `);
 
