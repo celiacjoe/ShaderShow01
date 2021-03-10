@@ -299,7 +299,7 @@ const displayShaderSource = `
       vec2 uv = vUv;
         float c = texture2D(uTexture, vUv).r;
         float hs = fract(sin(dot(vUv,vec2(45.451,98.934)))*7845.236+time*5.);
-        float v0 = mix(1.-c,c,pow(hs,10.)*mix(0.,0.4,clamp(c,0.,1.)));
+        float v0 = mix(1.-c,c,pow(hs,10.)*mix(0.,0.7,clamp(c,0.,1.)));
         vec3 v1 = mix(vec3(0.,0.05,0.1),vec3(1.),v0);
         gl_FragColor = vec4(v1,1.);
     }
