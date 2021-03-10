@@ -364,6 +364,7 @@ const splatShader = compileShader(gl.FRAGMENT_SHADER, `
         //uv.x *= resolution.x/resolution.y;
         float fac = resolution.x/resolution.y;
         vec3 b2 = texture2D(uTarget,uc).xyz;
+        float res = 512.;
     float an = step(0.5,fract(time));
     vec2 v2 = (mouse-0.5)*0.25* mix(vec2(1.,0.),vec2(0.,1.),an)*vec2(-1.,1.);
     vec2 v3 = vec2(texture2D(uTarget,vec2(0.25,0.8)).a,texture2D(uTarget,vec2(0.75,0.8)).a);
@@ -381,15 +382,15 @@ const splatShader = compileShader(gl.FRAGMENT_SHADER, `
     if(b2.z>0.)u1= uv.x;
    else u1 = uv.y;
    float vl =smoothstep(0.05,0., distance(0.5,mix(fract(b2.y*10.),0.,l4)));
-   vec2 pos = vUv*1024.;
+   vec2 pos = vUv*res;
    float ang = (texture2D(uTarget,vUv).y-.5)*6.38;
    vec2 v=vec2(0);
    vec2 b = vec2(cos(ang),sin(ang));
        vec2 p = b;
        float rot = 0.;
-       rot += dot( texture2D(uTarget,fract((pos+p)/1024.)).xy-0.5,p.yx);
+       rot += dot( texture2D(uTarget,fract((pos+p)/res)).xy-0.5,p.yx);
        v+=p.yx*rot/dot(b,b)*( texture2D(uTarget,vUv).x)*5.;
-   float t1 =  texture2D(uTarget,fract((pos+v*vec2(-2,2))/1024.)).x;
+   float t1 =  texture2D(uTarget,fract((pos+v*vec2(-2,2))/res)).x;
    float t2 =t1*0.98+vl;
         gl_FragColor = vec4(t2,l5,l3,v5);
       //gl_FragColor = vec4(vl,l5,l3,v5);
@@ -453,7 +454,7 @@ function initFramebuffers () {
     gl.disable(gl.BLEND);
 
   //  if (dye == null)
-        dye = createDoubleFBO(1024., 1024., rgba.internalFormat, rgba.format, texType,  gl.LINEAR);
+        dye = createDoubleFBO(512., 512., rgba.internalFormat, rgba.format, texType,  gl.LINEAR);
   //  else
       //  dye = resizeDoubleFBO(dye,canvas.width*0.5, canvas.height*0.5, rgba.internalFormat, rgba.format, texType, filtering);
 
