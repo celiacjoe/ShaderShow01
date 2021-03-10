@@ -166,7 +166,7 @@ function clamp01 (input) {
     return Math.min(Math.max(input, 0), 1);
 }*/
 
-function textureToCanvas (texture, width, height) {
+/*function textureToCanvas (texture, width, height) {
     let captureCanvas = document.createElement('canvas');
     let ctx = captureCanvas.getContext('2d');
     captureCanvas.width = width;
@@ -177,7 +177,7 @@ function textureToCanvas (texture, width, height) {
     ctx.putImageData(imageData, 0, 0);
 
     return captureCanvas;
-}
+}*/
 
 class Material {
     constructor (vertexShader, fragmentShaderSource) {
@@ -450,7 +450,7 @@ const displayMaterial = new Material(baseVertexShader, displayShaderSource);
 
 function initFramebuffers () {
 
-    //let dyeRes = getResolution(config.DYE_RESOLUTION);
+    let dyeRes = getResolution(config.DYE_RESOLUTION);
 
     const texType = ext.halfFloatTexType;
     const rgba    = ext.formatRGBA;
@@ -461,7 +461,7 @@ function initFramebuffers () {
     gl.disable(gl.BLEND);
 
   //  if (dye == null)
-        dye = createDoubleFBO(512., 512., rgba.internalFormat, rgba.format, texType,  gl.LINEAR);
+        dye = createDoubleFBO(dyeRes.width, dyeRes.height, rgba.internalFormat, rgba.format, texType,  gl.LINEAR);
   //  else
       //  dye = resizeDoubleFBO(dye,canvas.width*0.5, canvas.height*0.5, rgba.internalFormat, rgba.format, texType, filtering);
 
