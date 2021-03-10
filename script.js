@@ -38,7 +38,7 @@ if (isMobile()) {
   //  config.SUNRAYS_RESOLUTION = 512;
 }
 if (!ext.supportLinearFiltering) {
-    config.DYE_RESOLUTION = 512;
+  //  config.DYE_RESOLUTION = 512;
 //  config.SUNRAYS_RESOLUTION = 512;
 
 }
@@ -119,8 +119,8 @@ function getSupportedFormat (gl, internalFormat, format, type)
 function supportRenderTextureFormat (gl, internalFormat, format, type) {
     let texture = gl.createTexture();
     gl.bindTexture(gl.TEXTURE_2D, texture);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
     gl.texImage2D(gl.TEXTURE_2D, 0, internalFormat, 4, 4, 0, format, type, null);
@@ -146,7 +146,7 @@ function framebufferToTexture (target) {
     return texture;
 }
 
-function normalizeTexture (texture, width, height) {
+/*function normalizeTexture (texture, width, height) {
     let result = new Uint8Array(texture.length);
     let id = 0;
     for (let i = height - 1; i >= 0; i--) {
@@ -164,7 +164,7 @@ function normalizeTexture (texture, width, height) {
 
 function clamp01 (input) {
     return Math.min(Math.max(input, 0), 1);
-}
+}*/
 
 function textureToCanvas (texture, width, height) {
     let captureCanvas = document.createElement('canvas');
@@ -447,12 +447,12 @@ function initFramebuffers () {
     const rgba    = ext.formatRGBA;
     const rg      = ext.formatRG;
     const r       = ext.formatR;
-    const filtering = ext.supportLinearFiltering ? gl.LINEAR : gl.NEAREST;
+    //const filtering = ext.supportLinearFiltering ? gl.LINEAR : gl.NEAREST;
 
     gl.disable(gl.BLEND);
 
   //  if (dye == null)
-        dye = createDoubleFBO(canvas.width*0.5, canvas.height*0.5, rgba.internalFormat, rgba.format, texType, filtering);
+        dye = createDoubleFBO(canvas.width*0.5, canvas.height*0.5, rgba.internalFormat, rgba.format, texType,  gl.LINEAR);
   //  else
       //  dye = resizeDoubleFBO(dye,canvas.width*0.5, canvas.height*0.5, rgba.internalFormat, rgba.format, texType, filtering);
 
