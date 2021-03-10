@@ -441,7 +441,7 @@ const displayMaterial = new Material(baseVertexShader, displayShaderSource);
 
 function initFramebuffers () {
 
-    let dyeRes = getResolution(config.DYE_RESOLUTION);
+    //let dyeRes = getResolution(config.DYE_RESOLUTION);
 
     const texType = ext.halfFloatTexType;
     const rgba    = ext.formatRGBA;
@@ -451,10 +451,10 @@ function initFramebuffers () {
 
     gl.disable(gl.BLEND);
 
-    if (dye == null)
+  //  if (dye == null)
         dye = createDoubleFBO(canvas.width*0.5, canvas.height*0.5, rgba.internalFormat, rgba.format, texType, filtering);
-    else
-        dye = resizeDoubleFBO(dye,canvas.width*0.5, canvas.height*0.5, rgba.internalFormat, rgba.format, texType, filtering);
+  //  else
+      //  dye = resizeDoubleFBO(dye,canvas.width*0.5, canvas.height*0.5, rgba.internalFormat, rgba.format, texType, filtering);
 
 
     //initSunraysFramebuffers();
@@ -615,7 +615,7 @@ function splatPointer (pointer) {
 function splat (x, y) {
     splatProgram.bind();
     gl.uniform1f(splatProgram.uniforms.time, performance.now() / 1000);
-    gl.uniform2f(splatProgram.uniforms.resolution, canvas.width , canvas.height);
+    gl.uniform2f(splatProgram.uniforms.resolution, canvas.width*0.5 , canvas.height*0.5);
     gl.uniform2f(splatProgram.uniforms.mouse, x, 1.-y);
     gl.uniform1i(splatProgram.uniforms.uTarget, dye.read.attach(0));
     blit(dye.write);
