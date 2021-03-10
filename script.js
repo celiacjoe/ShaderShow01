@@ -297,9 +297,9 @@ const displayShaderSource = `
     uniform float time;
     void main () {
       vec2 uv = vUv;
-        float c = clamp(texture2D(uTexture, vUv).r,0.,1.);
+        float c = texture2D(uTexture, vUv).r;
         float hs = fract(sin(dot(vUv,vec2(45.451,98.934)))*7845.236+time*5.);
-        float v0 = mix(1.-c,c,pow(hs,10.)*mix(0.2,0.7,c));
+        float v0 = mix(1.-c,c,pow(hs,10.)*mix(0.,0.4,clamp(c,0.,1.)));
         vec3 v1 = mix(vec3(0.,0.05,0.1),vec3(1.),v0);
         gl_FragColor = vec4(v1,1.);
     }
