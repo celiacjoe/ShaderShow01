@@ -281,10 +281,10 @@ const baseVertexShader = compileShader(gl.VERTEX_SHADER, `
 
     void main () {
         vUv = aPosition * 0.5 + 0.5;
-        vL = vUv - vec2(texelSize.x, 0.0);
+        /*vL = vUv - vec2(texelSize.x, 0.0);
         vR = vUv + vec2(texelSize.x, 0.0);
         vT = vUv + vec2(0.0, texelSize.y);
-        vB = vUv - vec2(0.0, texelSize.y);
+        vB = vUv - vec2(0.0, texelSize.y);*/
         gl_Position = vec4(aPosition, 0.0, 1.0);
     }
 `);
@@ -299,9 +299,9 @@ const displayShaderSource = `
       vec2 uv = vUv;
 
         vec3 c = texture2D(uTexture, vUv).rgb;
-        float hs = fract(sin(dot(vUv,vec2(45.451,98.934)))*7845.236+time*5.);
-        float v0 = mix(1.-c.x,c.x,pow(hs,10.)*0.7);
-        vec3 v1 = mix(vec3(0.,0.05,0.1),vec3(1.),v0);
+        //float hs = fract(sin(dot(vUv,vec2(45.451,98.934)))*7845.236+time*5.);
+        //float v0 = mix(1.-c.x,c.x,pow(hs,10.)*0.7);
+        vec3 v1 = mix(vec3(0.,0.05,0.1),vec3(1.),1.-c.x);
         gl_FragColor = vec4(v1,1.);
     }
 `;
