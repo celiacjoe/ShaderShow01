@@ -381,15 +381,15 @@ const splatShader = compileShader(gl.FRAGMENT_SHADER, `
     if(b2.z>0.)u1= uv.x;
    else u1 = uv.y;
    float vl =smoothstep(0.05,0., distance(0.5,mix(fract(b2.y*10.),0.,l4)));
-   vec2 pos = vUv*resolution;
+   vec2 pos = vUv*1024.;
    float ang = (texture2D(uTarget,vUv).y-.5)*6.38;
    vec2 v=vec2(0);
    vec2 b = vec2(cos(ang),sin(ang));
        vec2 p = b;
        float rot = 0.;
-       rot += dot( texture2D(uTarget,fract((pos+p)/resolution)).xy-0.5,p.yx);
+       rot += dot( texture2D(uTarget,fract((pos+p)/1024.)).xy-0.5,p.yx);
        v+=p.yx*rot/dot(b,b)*( texture2D(uTarget,vUv).x)*5.;
-   float t1 =  texture2D(uTarget,fract((pos+v*vec2(-2,2))/resolution.xy)).x;
+   float t1 =  texture2D(uTarget,fract((pos+v*vec2(-2,2))/1024.)).x;
    float t2 =t1*0.98+vl;
         gl_FragColor = vec4(t2,l5,l3,v5);
       //gl_FragColor = vec4(vl,l5,l3,v5);
@@ -453,7 +453,7 @@ function initFramebuffers () {
     gl.disable(gl.BLEND);
 
   //  if (dye == null)
-        dye = createDoubleFBO(canvas.width*0.5, canvas.height*0.5, rgba.internalFormat, rgba.format, texType,  gl.LINEAR);
+        dye = createDoubleFBO(1024., 1024., rgba.internalFormat, rgba.format, texType,  gl.LINEAR);
   //  else
       //  dye = resizeDoubleFBO(dye,canvas.width*0.5, canvas.height*0.5, rgba.internalFormat, rgba.format, texType, filtering);
 
@@ -616,7 +616,7 @@ function splatPointer (pointer) {
 function splat (x, y) {
     splatProgram.bind();
     gl.uniform1f(splatProgram.uniforms.time, performance.now() / 1000);
-    gl.uniform2f(splatProgram.uniforms.resolution, canvas.width*0.5 , canvas.height*0.5);
+    gl.uniform2f(splatProgram.uniforms.resolution, canvas.width , canvas.height);
     gl.uniform2f(splatProgram.uniforms.mouse, x, 1.-y);
     gl.uniform1i(splatProgram.uniforms.uTarget, dye.read.attach(0));
     blit(dye.write);
