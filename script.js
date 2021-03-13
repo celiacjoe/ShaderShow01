@@ -274,7 +274,7 @@ const displayShaderSource = `
     void main () {
       vec2 uv = vUv;
       vec2 pix = uv *resolution;
-      float val =.015*resolution.x;
+      float val =.0125*resolution.x;
       float val2 = val*2.;
         float c = texture2D(uTexture,floor(pix/val2)*val2/resolution).r;
         //float c = texture2D(uTexture,uv).r;
