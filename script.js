@@ -317,11 +317,16 @@ const splatShader = compileShader(gl.FRAGMENT_SHADER, `
       p *= rot(ang);
       p *= 4.;
       pos = pos+p;
-      float rot =0.;
-      rot+=dot( texture2D(uTarget,fract((pos+p)/resolution)).xy-0.5,p.yx);
-       vec2 v =p.yx*rot/dot(p,p)*( texture2D(uTarget,uv).x)*10.;
+      float ro =0.;
+      float da =  texture2D(uTarget,uv).x*20.;
+      ro+=dot( texture2D(uTarget,fract((pos+p)/resolution)).xy-0.5,p.yx);
+       vec2 v =p.yx*ro/dot(p,p)*da;
+       p *= rot(ang);
+       p *= 4.;
+       ro+=dot( texture2D(uTarget,fract((pos+p)/resolution)).xy-0.5,p.yx);
+       v += p.yx*ro/dot(p,p)*da;
    float t1 =  texture2D(uTarget,fract((pos+v*vec2(-2,2))/resolution.xy)).x;
-   float r1 =t1*0.98+n1;
+   float r1 =t1*0.985+n1;
         gl_FragColor = vec4(r1);
     }
 `);
