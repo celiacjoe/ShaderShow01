@@ -609,11 +609,7 @@ function resizeCanvas () {
 
 function applyInputs () {
 
-    pointers.forEach(p => {
-
-            splatPointer(p);
-
-    });
+  splatPointer( pointers[0]);
 }
 
 function render (target) {
@@ -659,7 +655,8 @@ function splat (x, y, dx, dy, color) {
 canvas.addEventListener('mousedown', e => {
     let posX = scaleByPixelRatio(e.offsetX);
     let posY = scaleByPixelRatio(e.offsetY);
-    let pointer = pointers.find(p => p.id == -1);
+    //let pointer = pointers.find(p => p.id == -1);
+      let pointer = pointers[0];
     if (pointer == null)
         pointer = new pointerPrototype();
     updatePointerDownData(pointer, -1, posX, posY);
@@ -685,7 +682,8 @@ canvas.addEventListener('touchstart', e => {
     for (let i = 0; i < touches.length; i++) {
         let posX = scaleByPixelRatio(touches[i].pageX);
         let posY = scaleByPixelRatio(touches[i].pageY);
-        updatePointerDownData(pointers[i + 1], touches[i].identifier, posX, posY);
+        //updatePointerDownData(pointers[i + 1], touches[i].identifier, posX, posY);
+        updatePointerDownData(pointers[0], touches[i].identifier, posX, posY);
     }
 });
 
@@ -693,7 +691,8 @@ canvas.addEventListener('touchmove', e => {
     e.preventDefault();
     const touches = e.targetTouches;
     for (let i = 0; i < touches.length; i++) {
-        let pointer = pointers[i + 1];
+        //let pointer = pointers[i + 1];
+        let pointer = pointers[0];
         if (!pointer.down) continue;
         let posX = scaleByPixelRatio(touches[i].pageX);
         let posY = scaleByPixelRatio(touches[i].pageY);
