@@ -294,7 +294,7 @@ const displayShaderSource = `
     precision highp sampler2D;
     varying vec2 vUv;
     uniform sampler2D uSunrays;
-    uniform sampler2D uTex;
+    //uniform sampler2D uTex;
     uniform vec2 resolution;
     float sv(vec2 uv){return length(texture2D(uSunrays, uv).xyz);}
 vec2 g(vec2 uv,float e){
@@ -310,8 +310,8 @@ vec2 map(vec2 value, vec2 min1, vec2 max1, vec2 min2, vec2 max2) {
   vec3 li =vec3(0.5,0.5,1.);
   float sha=clamp(dot(n,li),0.,1.0);
         vec3 sunrays = texture2D(uSunrays, vUv).xyz;
-        vec2 uf = map(uv,vec2(0.),vec2(512.,128.)/resolution,vec2(0.,1.),vec2(1.,0.));
-        gl_FragColor = vec4(sunrays*sha*texture2D(uTex, uf+n.xy*0.25).x,1.);
+      //  vec2 uf = map(uv,vec2(0.),vec2(512.,128.)/resolution,vec2(0.,1.),vec2(1.,0.));
+        gl_FragColor = vec4(sunrays*sha,1.);
     }
 `;
 
@@ -427,7 +427,7 @@ function CHECK_FRAMEBUFFER_STATUS () {
 let dye;
 let sunrays;
 
-let fragesTexture = createTextureAsync('Insta_Avatar2.png');
+//let fragesTexture = createTextureAsync('Insta_Avatar2.png');
 
 const sunraysProgram         = new Program(baseVertexShader, sunraysShader);
 const splatProgram           = new Program(baseVertexShader, splatShader);
@@ -625,7 +625,7 @@ function drawDisplay (target) {
     displayMaterial.bind();
         gl.uniform2f(displayMaterial.uniforms.resolution, canvas.width , canvas.height);
         gl.uniform1i(displayMaterial.uniforms.uSunrays, sunrays.attach(0));
-        gl.uniform1i(displayMaterial.uniforms.uTex, fragesTexture.attach(1));
+      //  gl.uniform1i(displayMaterial.uniforms.uTex, fragesTexture.attach(1));
     blit(target);
 }
 
