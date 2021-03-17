@@ -679,35 +679,35 @@ canvas.addEventListener('touchstart', e => {
     const touches = e.targetTouches;
     while (touches.length >= pointers.length)
         pointers.push(new pointerPrototype());
-  //  for (let i = 0; i < touches.length; i++) {
-        let posX = scaleByPixelRatio(touches[0].pageX);
-        let posY = scaleByPixelRatio(touches[0].pageY);
+    for (let i = 0; i < touches.length; i++) {
+        let posX = scaleByPixelRatio(touches[i].pageX);
+        let posY = scaleByPixelRatio(touches[i].pageY);
         //updatePointerDownData(pointers[i + 1], touches[i].identifier, posX, posY);
-        updatePointerDownData(pointers[0], touches[0].identifier, posX, posY);
-  //  }
+        updatePointerDownData(pointers[0], touches[i].identifier, posX, posY);
+    }
 });
 
 canvas.addEventListener('touchmove', e => {
     e.preventDefault();
     const touches = e.targetTouches;
-  //  for (let i = 0; i < touches.length; i++) {
+    for (let i = 0; i < touches.length; i++) {
         //let pointer = pointers[i + 1];
         let pointer = pointers[0];
-        //if (!pointer.down) continue;
-        let posX = scaleByPixelRatio(touches[0].pageX);
-        let posY = scaleByPixelRatio(touches[0].pageY);
+        if (!pointer.down) continue;
+        let posX = scaleByPixelRatio(touches[i].pageX);
+        let posY = scaleByPixelRatio(touches[i].pageY);
         updatePointerMoveData(pointer, posX, posY);
-  //  }
+    }
 }, false);
 
 window.addEventListener('touchend', e => {
     const touches = e.changedTouches;
-    //for (let i = 0; i < touches.length; i++)
-    //{
-        let pointer = pointers.find(p => p.id == touches[0].identifier);
-        //if (pointer == null) continue;
+    for (let i = 0; i < touches.length; i++)
+    {
+        let pointer = pointers.find(p => p.id == touches[i].identifier);
+        if (pointer == null) continue;
         updatePointerUpData(pointer);
-  //  }
+    }
 });
 
 
