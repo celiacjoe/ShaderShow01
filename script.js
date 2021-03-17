@@ -310,8 +310,8 @@ vec2 map(vec2 value, vec2 min1, vec2 max1, vec2 min2, vec2 max2) {
   vec3 li =vec3(0.5,0.5,1.);
   float sha=clamp(dot(n,li),0.,1.0);
         vec3 sunrays = texture2D(uSunrays, vUv).xyz;
-        vec2 uf = map(uv,vec2(0.1,0.),vec2(512.,128.)/resolution,vec2(0.,1.1),vec2(1.,0.1));
-        gl_FragColor = vec4(sunrays*sha*texture2D(uTex, uf*0.5+vec2(0.,0.5)+n.xy*0.25).x,1.);
+        vec2 uf = map(uv,vec2(0.,0.),vec2(1024.,256.)/resolution,vec2(-0.1,1.1),vec2(0.9,0.1));
+        gl_FragColor = vec4(sunrays*sha*texture2D(uTex, uf+n.xy*0.25).x,1.);
     }
 `;
 
