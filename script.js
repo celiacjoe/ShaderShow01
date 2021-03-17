@@ -294,6 +294,7 @@ const displayShaderSource = `
     precision highp sampler2D;
     varying vec2 vUv;
     uniform sampler2D uSunrays;
+    uniform sampler2D uTex;
     float sv(vec2 uv){return length(texture2D(uSunrays, uv).xyz);}
 vec2 g(vec2 uv,float e){
 return vec2(sv(uv+vec2(e,0.))-sv(uv-vec2(e,0.)),sv(uv+vec2(0.,e))-sv(uv-vec2(0.,e)))/e;}
@@ -305,7 +306,7 @@ return vec2(sv(uv+vec2(e,0.))-sv(uv-vec2(e,0.)),sv(uv+vec2(0.,e))-sv(uv-vec2(0.,
   vec3 li =vec3(0.5,0.5,1.);
   float sha=clamp(dot(n,li),0.,1.0);
         vec3 sunrays = texture2D(uSunrays, vUv).xyz;
-        gl_FragColor = vec4(sunrays*sha,1.);
+        gl_FragColor = vec4(sunrays*sha*texture2D(uTex, vUv).x,1.);
     }
 `;
 
@@ -421,6 +422,8 @@ function CHECK_FRAMEBUFFER_STATUS () {
 let dye;
 let sunrays;
 
+let fragesTexture = createTextureAsync('Insta_Avatar2.png');
+
 const sunraysProgram         = new Program(baseVertexShader, sunraysShader);
 const splatProgram           = new Program(baseVertexShader, splatShader);
 
@@ -523,6 +526,38 @@ function createDoubleFBO (w, h, internalFormat, format, type, param) {
     }
 }
 
+function createTextureAsync (url) {
+    let texture = gl.createTexture();
+    gl.bindTexture(gl.TEXTURE_2D, texture);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGB, 1, 1, 0, gl.RGB, gl.UNSIGNED_BYTE, new Uint8Array([255, 255, 255]));
+
+    let obj = {
+        texture,
+        width: 1,
+        height: 1,
+        attach (id) {
+            gl.activeTexture(gl.TEXTURE0 + id);
+            gl.bindTexture(gl.TEXTURE_2D, texture);
+            return id;
+        }
+    };
+
+    let image = new Image();
+    image.onload = () => {
+        obj.width = image.width;
+        obj.height = image.height;
+        gl.bindTexture(gl.TEXTURE_2D, texture);
+        gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGB, gl.RGB, gl.UNSIGNED_BYTE, image);
+    };
+    image.src = url;
+
+    return obj;
+}
+
 function updateKeywords () {
     let displayKeywords = [];
     if (config.SUNRAYS) displayKeywords.push("SUNRAYS");
@@ -588,7 +623,8 @@ function drawDisplay (target) {
 
     displayMaterial.bind();
 
-        gl.uniform1i(displayMaterial.uniforms.uSunrays, sunrays.attach(3));
+        gl.uniform1i(displayMaterial.uniforms.uSunrays, sunrays.attach(0));
+        gl.uniform1i(displayMaterial.uniforms.uTex, fragesTexture.attach(1));
     blit(target);
 }
 
