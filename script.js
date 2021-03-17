@@ -295,9 +295,13 @@ const displayShaderSource = `
     varying vec2 vUv;
     uniform sampler2D uSunrays;
     uniform sampler2D uTex;
+    uniform vec2 resolution;
     float sv(vec2 uv){return length(texture2D(uSunrays, uv).xyz);}
 vec2 g(vec2 uv,float e){
 return vec2(sv(uv+vec2(e,0.))-sv(uv-vec2(e,0.)),sv(uv+vec2(0.,e))-sv(uv-vec2(0.,e)))/e;}
+vec2 map(vec2 value, vec2 min1, vec2 max1, vec2 min2, vec2 max2) {
+  return min2 + (value - min1) * (max2 - min2) / (max1 - min1);
+}
     void main () {
       vec2 uv = vUv;
       float e = 0.01;
@@ -306,7 +310,8 @@ return vec2(sv(uv+vec2(e,0.))-sv(uv-vec2(e,0.)),sv(uv+vec2(0.,e))-sv(uv-vec2(0.,
   vec3 li =vec3(0.5,0.5,1.);
   float sha=clamp(dot(n,li),0.,1.0);
         vec3 sunrays = texture2D(uSunrays, vUv).xyz;
-        gl_FragColor = vec4(sunrays*sha*texture2D(uTex, vUv).x,1.);
+        vec2 uf = map(uv,vec2(0.),vec2(512.,128.)/resolution,vec2(0.,1.),vec2(1.,0.));
+        gl_FragColor = vec4(sunrays*sha*texture2D(uTex, uf+n.xy*0.25).x,1.);
     }
 `;
 
@@ -622,7 +627,7 @@ function drawDisplay (target) {
     let height = target == null ? gl.drawingBufferHeight : target.height;
 
     displayMaterial.bind();
-
+        gl.uniform2f(displayMaterial.uniforms.resolution, canvas.width , canvas.height);
         gl.uniform1i(displayMaterial.uniforms.uSunrays, sunrays.attach(0));
         gl.uniform1i(displayMaterial.uniforms.uTex, fragesTexture.attach(1));
     blit(target);
