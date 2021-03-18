@@ -441,7 +441,7 @@ function initFramebuffers () {
     gl.disable(gl.BLEND);
 
   //  if (dye == null)
-        dye = createDoubleFBO(dyeRes.width, dyeRes.height*2., rgba.internalFormat, rgba.format, texType,  gl.LINEAR);
+        dye = createDoubleFBO(dyeRes.width, dyeRes.height, rgba.internalFormat, rgba.format, texType,  gl.LINEAR);
   //  else
       //  dye = resizeDoubleFBO(dye,canvas.width*0.5, canvas.height*0.5, rgba.internalFormat, rgba.format, texType, filtering);
 
