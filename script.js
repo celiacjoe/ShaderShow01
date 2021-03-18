@@ -299,13 +299,13 @@ vec2 g(vec2 uv,float e){
 return vec2(sv(uv+vec2(e,0.))-sv(uv-vec2(e,0.)),sv(uv+vec2(0.,e))-sv(uv-vec2(0.,e)))/e;}
     void main () {
       vec2 uv = vUv;
-      float e = 0.01;
+    /*  float e = 0.01;
      vec3 n = vec3(g(uv,0.001),250.);
   n=normalize(n);
   vec3 li =vec3(0.5,0.5,1.);
-  float sha=clamp(dot(n,li),0.,1.0);
+  float sha=clamp(dot(n,li),0.,1.0);*/
         vec3 c = texture2D(uTexture, vUv).xyz;
-        gl_FragColor = vec4(c*sha,1.);
+        gl_FragColor = vec4(c,1.);
     }
 `;
 
