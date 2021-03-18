@@ -335,7 +335,7 @@ vec3 ov3(vec3 a, vec3 b){
         p.x *= aspectRatio;
         vec2 pr = u2 - mouse.xy;
         pr.x *= aspectRatio;
-        vec3 diff = vec3(0.003*vec2(1.,aspectRatio),0.);
+        vec3 diff = vec3(0.002*vec2(1.,aspectRatio),0.);
         float mp =smoothstep(0.1,0.,length(pr));
         float mp2 =smoothstep(.3,0.,length(p));
 
