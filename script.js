@@ -299,11 +299,11 @@ vec2 g(vec2 uv,float e){
 return vec2(sv(uv+vec2(e,0.))-sv(uv-vec2(e,0.)),sv(uv+vec2(0.,e))-sv(uv-vec2(0.,e)))/e;}
     void main () {
       vec2 uv = vUv;
-    /*  float e = 0.01;
+      float e = 0.01;
      vec3 n = vec3(g(uv,0.001),250.);
   n=normalize(n);
   vec3 li =vec3(0.5,0.5,1.);
-  float sha=clamp(dot(n,li),0.,1.0);*/
+  float sha=clamp(dot(n,li),0.,1.0);
         vec3 c = texture2D(uTexture, vUv).xyz;
         gl_FragColor = vec4(c,1.);
     }
@@ -335,7 +335,7 @@ vec3 ov3(vec3 a, vec3 b){
         p.x *= aspectRatio;
         vec2 pr = u2 - mouse.xy;
         pr.x *= aspectRatio;
-        vec3 diff = vec3(0.002*vec2(1.,aspectRatio),0.);
+        vec3 diff = vec3(0.003*vec2(1.,aspectRatio),0.);
         float mp =smoothstep(0.1,0.,length(pr));
         float mp2 =smoothstep(.3,0.,length(p));
 
@@ -357,7 +357,7 @@ vec3 ov3(vec3 a, vec3 b){
     float f = mix( red,center,step(0.5,uv.y));
     float k2 = mix(0.55,0.9,mix(texture2D(uTarget,uv*vec2(1.,0.5)).a,0.5,mp2));
 
-  /*  vec2 p2 = uv;
+    vec2 p2 = uv;
     p2 = 5.*p2;
     vec4 k3 = k2 +sin(2.*sin(vec4(k2)*10.)+p2.yxyy-p2.yyxy*.5)/12.;
         lowp float lightness = RGBToL(k3.rgb);
@@ -379,8 +379,8 @@ vec3 ov3(vec3 a, vec3 b){
             lowp float oldLum = RGBToL(k3.xyz);
             k3.xyz = HSLToRGB(vec3(newHSL.x, newHSL.y, oldLum));
             vec3 mask = mix(vec3(0.,0.,0.368),vec3(-3.,0.12,0.12),distance((-1.+2.*uv)*0.464,vec2(0.)));
-        vec3 k4 =ov3(clamp(k3.xyz,0.,1.),mask);*/
-        gl_FragColor = vec4(vec3(k2), f);
+        vec3 k4 =ov3(clamp(k3.xyz,0.,1.),mask);
+        gl_FragColor = vec4(vec3(k4), f);
     }
 `);
 
