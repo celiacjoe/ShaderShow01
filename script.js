@@ -336,8 +336,8 @@ vec3 ov3(vec3 a, vec3 b){
         vec2 pr = u2 - mouse.xy;
         pr.x *= aspectRatio;
         vec3 diff = vec3(0.002*vec2(1.,aspectRatio),0.);
-        float mp =smoothstep(0.1,0.,length(pr));
-        float mp2 =smoothstep(.3,0.,length(p));
+        float mp =smoothstep(0.07,0.,length(pr));
+        float mp2 =smoothstep(.21,0.,length(p));
 
         vec2 uv2 = vec2(uv.x,map(u2.y,0.,1.,0.,0.5));
         vec2 uv3 = vec2(uv.x,map(u2.y,0.,1.,0.5,1.));
@@ -441,7 +441,7 @@ function initFramebuffers () {
     gl.disable(gl.BLEND);
 
   //  if (dye == null)
-        dye = createDoubleFBO(dyeRes.width, dyeRes.height*2., rgba.internalFormat, rgba.format, texType,  gl.LINEAR);
+        dye = createDoubleFBO(dyeRes.width, dyeRes.height, rgba.internalFormat, rgba.format, texType,  gl.LINEAR);
   //  else
       //  dye = resizeDoubleFBO(dye,canvas.width*0.5, canvas.height*0.5, rgba.internalFormat, rgba.format, texType, filtering);
 
