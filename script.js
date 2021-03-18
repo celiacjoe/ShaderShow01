@@ -335,7 +335,7 @@ vec3 ov3(vec3 a, vec3 b){
         p.x *= aspectRatio;
         vec2 pr = u2 - mouse.xy;
         pr.x *= aspectRatio;
-        vec3 diff = vec3(0.001*vec2(1.,aspectRatio),0.);
+        vec3 diff = vec3(0.002*vec2(1.,aspectRatio),0.);
         float mp =smoothstep(0.1,0.,length(pr));
         float mp2 =smoothstep(.3,0.,length(p));
 
@@ -467,8 +467,8 @@ function createFBO (w, h, internalFormat, format, type, param) {
     gl.bindTexture(gl.TEXTURE_2D, texture);
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, param);
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, param);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.REPEAT);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.REPEAT);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
     gl.texImage2D(gl.TEXTURE_2D, 0, internalFormat, w, h, 0, format, type, null);
 
     let fbo = gl.createFramebuffer();
