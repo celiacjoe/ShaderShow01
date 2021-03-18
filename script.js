@@ -11,8 +11,8 @@ let config = {
     PAUSED: false,
     BACK_COLOR: { r: 0, g: 0, b: 0 },
     TRANSPARENT: false,
-    SUNRAYS: true,
-    SUNRAYS_RESOLUTION: 1024,
+  //  SUNRAYS: true,
+  //  SUNRAYS_RESOLUTION: 1024,
 }
 
 function pointerPrototype () {
@@ -35,11 +35,11 @@ const { gl, ext } = getWebGLContext(canvas);
 
 if (isMobile()) {
     config.DYE_RESOLUTION = 512;
-    config.SUNRAYS_RESOLUTION = 512;
+  //  config.SUNRAYS_RESOLUTION = 512;
 }
 if (!ext.supportLinearFiltering) {
-    config.DYE_RESOLUTION = 512;
-    config.SUNRAYS_RESOLUTION = 512;
+  //  config.DYE_RESOLUTION = 512;
+//  config.SUNRAYS_RESOLUTION = 512;
 
 }
 
@@ -146,7 +146,7 @@ function framebufferToTexture (target) {
     return texture;
 }
 
-function normalizeTexture (texture, width, height) {
+/*function normalizeTexture (texture, width, height) {
     let result = new Uint8Array(texture.length);
     let id = 0;
     for (let i = height - 1; i >= 0; i--) {
@@ -164,9 +164,9 @@ function normalizeTexture (texture, width, height) {
 
 function clamp01 (input) {
     return Math.min(Math.max(input, 0), 1);
-}
+}*/
 
-function textureToCanvas (texture, width, height) {
+/*function textureToCanvas (texture, width, height) {
     let captureCanvas = document.createElement('canvas');
     let ctx = captureCanvas.getContext('2d');
     captureCanvas.width = width;
@@ -177,7 +177,7 @@ function textureToCanvas (texture, width, height) {
     ctx.putImageData(imageData, 0, 0);
 
     return captureCanvas;
-}
+}*/
 
 class Material {
     constructor (vertexShader, fragmentShaderSource) {
@@ -281,10 +281,10 @@ const baseVertexShader = compileShader(gl.VERTEX_SHADER, `
 
     void main () {
         vUv = aPosition * 0.5 + 0.5;
-        vL = vUv - vec2(texelSize.x, 0.0);
+        /*vL = vUv - vec2(texelSize.x, 0.0);
         vR = vUv + vec2(texelSize.x, 0.0);
         vT = vUv + vec2(0.0, texelSize.y);
-        vB = vUv - vec2(0.0, texelSize.y);
+        vB = vUv - vec2(0.0, texelSize.y);*/
         gl_Position = vec4(aPosition, 0.0, 1.0);
     }
 `);
@@ -293,15 +293,10 @@ const displayShaderSource = `
     precision highp float;
     precision highp sampler2D;
     varying vec2 vUv;
-    uniform sampler2D uSunrays;
-    uniform sampler2D uTex;
-    uniform vec2 resolution;
-    float sv(vec2 uv){return length(texture2D(uSunrays, uv).xyz);}
+    uniform sampler2D uTexture;
+    float sv(vec2 uv){return length(texture2D(uTexture, uv).xyz);}
 vec2 g(vec2 uv,float e){
 return vec2(sv(uv+vec2(e,0.))-sv(uv-vec2(e,0.)),sv(uv+vec2(0.,e))-sv(uv-vec2(0.,e)))/e;}
-vec2 map(vec2 value, vec2 min1, vec2 max1, vec2 min2, vec2 max2) {
-  return min2 + (value - min1) * (max2 - min2) / (max1 - min1);
-}
     void main () {
       vec2 uv = vUv;
       float e = 0.01;
@@ -309,84 +304,83 @@ vec2 map(vec2 value, vec2 min1, vec2 max1, vec2 min2, vec2 max2) {
   n=normalize(n);
   vec3 li =vec3(0.5,0.5,1.);
   float sha=clamp(dot(n,li),0.,1.0);
-        vec3 sunrays = texture2D(uSunrays, vUv).xyz;
-        vec2 bm = vec2(1024.,256.)/resolution;
-        vec2 uf = map(uv,vec2(0.,1.),vec2(bm.x,1.-bm.y),vec2(-0.1),vec2(0.9));
-        gl_FragColor = vec4(sunrays*sha*texture2D(uTex, uf+n.xy*0.25).x,1.);
+        vec3 c = texture2D(uTexture, vUv).xyz;
+        gl_FragColor = vec4(c*sha,1.);
     }
 `;
 
-const sunraysShader = compileShader(gl.FRAGMENT_SHADER, `
-    precision highp float;
-    precision highp sampler2D;
 
-    varying vec2 vUv;
-    uniform sampler2D uTexture;
-    lowp float RGBToL(lowp vec3 f){lowp float g=min(min(f.r,f.g),f.b),r=max(max(f.r,f.g),f.b);return(r+g)/2.;}lowp vec3 RGBToHSL(lowp vec3 f){lowp vec3 i;lowp float g=min(min(f.r,f.g),f.b),r=max(max(f.r,f.g),f.b),m=r-g;i.b=(r+g)/2.;if(m==0.)i.r=0.,i.g=0.;else{if(i.b<.5)i.g=m/(r+g);else i.g=m/(2.-r-g);lowp float v=((r-f.r)/6.+m/2.)/m,b=((r-f.g)/6.+m/2.)/m,H=((r-f.b)/6.+m/2.)/m;if(f.r==r)i.r=H-b;else if(f.g==r)i.r=1./3.+v-H;else if(f.b==r)i.r=2./3.+b-v;if(i.r<0.)i.r+=1.;else if(i.r>1.)i.r-=1.;}return i;}lowp float HueToRGB(lowp float r,lowp float f,lowp float i){if(i<0.)i+=1.;else if(i>1.)i-=1.;lowp float l;if(6.*i<1.)l=r+(f-r)*6.*i;else if(2.*i<1.)l=f;else if(3.*i<2.)l=r+(f-r)*(2./3.-i)*6.;else l=r;return l;}lowp vec3 HSLToRGB(lowp vec3 f){lowp vec3 i;if(f.g==0.)i=vec3(f.b);else{lowp float l;if(f.b<.5)l=f.b*(1.+f.g);else l=f.b+f.g-f.g*f.b;lowp float r=2.*f.b-l;i.r=HueToRGB(r,l,f.r+1./3.);i.g=HueToRGB(r,l,f.r);i.b=HueToRGB(r,l,f.r-1./3.);}return i;}
-
-    float ov(float base, float blend) {
-    return base<0.5?(2.0*base*blend):(1.0-2.0*(1.0-base)*(1.0-blend));}
-vec3 ov3(vec3 a, vec3 b){
-    return vec3(ov(a.x,b.x),ov(a.y,b.y),ov(a.z,b.z));}
-
-    void main () {
-      vec2 uv = vUv;
-vec2 p2 =uv;
-
-p2 = 5.*p2;
-
-float k2 = texture2D(uTexture,vUv).z;
-  vec4 k3 = k2 +sin(2.*sin(vec4(k2)*10.)+p2.yxyy-p2.yyxy*.5)/12.;
-  lowp float lightness = RGBToL(k3.rgb);
-  float s1 = 0.144;
-  float s2 = -0.312;
-  float s3 = -0.144;
-  float m1 = 0.232;
-  float m2 = -0.192;
-  float m3 = 0.128;
-  float l1 = -0.136;
-  float l2 = 0.096;
-  float l3 = 0.136;
-  lowp vec3 s = smoothstep(1./1.5,0.,lightness)*(vec3(s1,s2,s3));
-  lowp vec3 m = smoothstep(0.,1./3.,lightness)*smoothstep(1.,2./3.,lightness)*(vec3(m1,m2,m3));
-  lowp vec3 l = smoothstep(2./3.,1.,lightness)*(vec3(l1,l2,l3));
-  lowp vec3 newColor = k3.xyz+s+m+l ;
-      newColor = clamp(newColor, 0.0, 1.0);
-  lowp vec3 newHSL = clamp(RGBToHSL(newColor),0.,1.);
-      lowp float oldLum = RGBToL(k3.xyz);
-      k3.xyz = HSLToRGB(vec3(newHSL.x, newHSL.y, oldLum));
-  vec3 mask = mix(vec3(0.,0.,0.368),vec3(-3.,0.12,0.12),distance((-1.+2.*uv)*0.464,vec2(0.)));
-  vec3 k4 =ov3(clamp(k3.xyz,0.,1.),mask);
-        gl_FragColor = vec4(k4,0.);
-    }
-`);
 
 const splatShader = compileShader(gl.FRAGMENT_SHADER, `
     precision highp float;
     precision highp sampler2D;
 
     varying vec2 vUv;
-    uniform sampler2D uTarget;
     uniform float aspectRatio;
-    uniform vec2 point;
+    uniform sampler2D uTarget;
+    uniform vec2 resolution;
+    uniform vec2 mouse;
+    lowp float RGBToL(lowp vec3 f){lowp float g=min(min(f.r,f.g),f.b),r=max(max(f.r,f.g),f.b);return(r+g)/2.;}lowp vec3 RGBToHSL(lowp vec3 f){lowp vec3 i;lowp float g=min(min(f.r,f.g),f.b),r=max(max(f.r,f.g),f.b),m=r-g;i.b=(r+g)/2.;if(m==0.)i.r=0.,i.g=0.;else{if(i.b<.5)i.g=m/(r+g);else i.g=m/(2.-r-g);lowp float v=((r-f.r)/6.+m/2.)/m,b=((r-f.g)/6.+m/2.)/m,H=((r-f.b)/6.+m/2.)/m;if(f.r==r)i.r=H-b;else if(f.g==r)i.r=1./3.+v-H;else if(f.b==r)i.r=2./3.+b-v;if(i.r<0.)i.r+=1.;else if(i.r>1.)i.r-=1.;}return i;}lowp float HueToRGB(lowp float r,lowp float f,lowp float i){if(i<0.)i+=1.;else if(i>1.)i-=1.;lowp float l;if(6.*i<1.)l=r+(f-r)*6.*i;else if(2.*i<1.)l=f;else if(3.*i<2.)l=r+(f-r)*(2./3.-i)*6.;else l=r;return l;}lowp vec3 HSLToRGB(lowp vec3 f){lowp vec3 i;if(f.g==0.)i=vec3(f.b);else{lowp float l;if(f.b<.5)l=f.b*(1.+f.g);else l=f.b+f.g-f.g*f.b;lowp float r=2.*f.b-l;i.r=HueToRGB(r,l,f.r+1./3.);i.g=HueToRGB(r,l,f.r);i.b=HueToRGB(r,l,f.r-1./3.);}return i;}
 
+    float ov(float base, float blend) {
+    return base<0.5?(2.0*base*blend):(1.0-2.0*(1.0-base)*(1.0-blend));}
+vec3 ov3(vec3 a, vec3 b){
+    return vec3(ov(a.x,b.x),ov(a.y,b.y),ov(a.z,b.z));}
+    float map(float value, float min1, float max1, float min2, float max2) {
+      return min2 + (value - min1) * (max2 - min2) / (max1 - min1);}
     void main () {
-        vec2 p = vUv - point.xy;
+      vec2 uv = vUv;
+      vec2 u2 = fract(uv*vec2(1.,2.));
+        vec2 p = uv - mouse.xy;
         p.x *= aspectRatio;
+        vec2 pr = u2 - mouse.xy;
+        pr.x *= aspectRatio;
         vec3 diff = vec3(0.001*vec2(1.,aspectRatio),0.);
-        float mp =smoothstep(0.1,0.,length(p));
+        float mp =smoothstep(0.1,0.,length(pr));
         float mp2 =smoothstep(.3,0.,length(p));
-        vec4 center =texture2D(uTarget, vUv);
-    float top = texture2D(uTarget, vUv-diff.zy).x;
-    float left = texture2D(uTarget, vUv-diff.xz).x;
-    float right = texture2D(uTarget, vUv+diff.xz).x;
-    float bottom = texture2D(uTarget, vUv+diff.zy).x;
-    float red = -(center.y-0.5)*2.+(top+left+right+bottom-2.);
+
+        vec2 uv2 = vec2(uv.x,map(u2.y,0.,1.,0.,0.5));
+        vec2 uv3 = vec2(uv.x,map(u2.y,0.,1.,0.5,1.));
+
+        float center =texture2D(uTarget, uv2).a;
+    float top = texture2D(uTarget, vUv-diff.zy).a;
+    float left = texture2D(uTarget, vUv-diff.xz).a;
+    float right = texture2D(uTarget, vUv+diff.xz).a;
+    float bottom = texture2D(uTarget, vUv+diff.zy).a;
+
+    float bb =texture2D(uTarget, uv3).a;
+
+    float red = -(bb-0.5)*2.+(top+left+right+bottom-2.);
     red += mp;red *= 0.995;
-    //red *= step(0.1,iTime);
     red = 0.5 +red*0.5;
     red = clamp(red,0.,1.);
-        gl_FragColor = vec4(red,center.x,mix(0.55,0.9,mix(red,0.5,mp2)), 1.0);
+    float f = mix( red,center,step(0.5,uv.y));
+    float k2 = mix(0.55,0.9,mix(texture2D(uTarget,uv*vec2(1.,0.5)).a,0.5,mp2));
+
+    vec2 p2 = uv;
+    p2 = 5.*p2;
+    vec4 k3 = k2 +sin(2.*sin(vec4(k2)*10.)+p2.yxyy-p2.yyxy*.5)/12.;
+        lowp float lightness = RGBToL(k3.rgb);
+        float s1 = 0.144;
+        float s2 = -0.312;
+        float s3 = -0.144;
+        float m1 = 0.232;
+        float m2 = -0.192;
+        float m3 = 0.128;
+        float l1 = -0.136;
+        float l2 = 0.096;
+        float l3 = 0.136;
+        lowp vec3 s = smoothstep(1./1.5,0.,lightness)*(vec3(s1,s2,s3));
+        lowp vec3 m = smoothstep(0.,1./3.,lightness)*smoothstep(1.,2./3.,lightness)*(vec3(m1,m2,m3));
+        lowp vec3 l = smoothstep(2./3.,1.,lightness)*(vec3(l1,l2,l3));
+        lowp vec3 newColor = k3.xyz+s+m+l ;
+            newColor = clamp(newColor, 0.0, 1.0);
+    		lowp vec3 newHSL = clamp(RGBToHSL(newColor),0.,1.);
+            lowp float oldLum = RGBToL(k3.xyz);
+            k3.xyz = HSLToRGB(vec3(newHSL.x, newHSL.y, oldLum));
+            vec3 mask = mix(vec3(0.,0.,0.368),vec3(-3.,0.12,0.12),distance((-1.+2.*uv)*0.464,vec2(0.)));
+        vec3 k4 =ov3(clamp(k3.xyz,0.,1.),mask);
+        gl_FragColor = vec4(vec3(k4), f);
     }
 `);
 
@@ -426,11 +420,9 @@ function CHECK_FRAMEBUFFER_STATUS () {
 }
 
 let dye;
-let sunrays;
+//let sunrays;
 
-let fragesTexture = createTextureAsync('Insta_Avatar2.png');
-
-const sunraysProgram         = new Program(baseVertexShader, sunraysShader);
+//const sunraysProgram         = new Program(baseVertexShader, sunraysShader);
 const splatProgram           = new Program(baseVertexShader, splatShader);
 
 
@@ -444,20 +436,20 @@ function initFramebuffers () {
     const rgba    = ext.formatRGBA;
     const rg      = ext.formatRG;
     const r       = ext.formatR;
-    const filtering = ext.supportLinearFiltering ? gl.LINEAR : gl.NEAREST;
+    //const filtering = ext.supportLinearFiltering ? gl.LINEAR : gl.NEAREST;
 
     gl.disable(gl.BLEND);
 
-    if (dye == null)
-        dye = createDoubleFBO(dyeRes.width, dyeRes.height, rgba.internalFormat, rgba.format, texType, filtering);
-    else
-        dye = resizeDoubleFBO(dye, dyeRes.width, dyeRes.height, rgba.internalFormat, rgba.format, texType, filtering);
+  //  if (dye == null)
+        dye = createDoubleFBO(dyeRes.width, dyeRes.height*2., rgba.internalFormat, rgba.format, texType,  gl.LINEAR);
+  //  else
+      //  dye = resizeDoubleFBO(dye,canvas.width*0.5, canvas.height*0.5, rgba.internalFormat, rgba.format, texType, filtering);
 
 
-    initSunraysFramebuffers();
+    //initSunraysFramebuffers();
 }
 
-function initSunraysFramebuffers () {
+/*function initSunraysFramebuffers () {
     let res = getResolution(config.SUNRAYS_RESOLUTION);
 
     const texType = ext.halfFloatTexType;
@@ -467,7 +459,7 @@ function initSunraysFramebuffers () {
     const filtering = ext.supportLinearFiltering ? gl.LINEAR : gl.NEAREST;
 
     sunrays     = createFBO(res.width, res.height, rgba.internalFormat, rgba.format, texType, filtering);
-}
+}*/
 
 function createFBO (w, h, internalFormat, format, type, param) {
     gl.activeTexture(gl.TEXTURE0);
@@ -532,41 +524,9 @@ function createDoubleFBO (w, h, internalFormat, format, type, param) {
     }
 }
 
-function createTextureAsync (url) {
-    let texture = gl.createTexture();
-    gl.bindTexture(gl.TEXTURE_2D, texture);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
-    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGB, 1, 1, 0, gl.RGB, gl.UNSIGNED_BYTE, new Uint8Array([255, 255, 255]));
-
-    let obj = {
-        texture,
-        width: 1,
-        height: 1,
-        attach (id) {
-            gl.activeTexture(gl.TEXTURE0 + id);
-            gl.bindTexture(gl.TEXTURE_2D, texture);
-            return id;
-        }
-    };
-
-    let image = new Image();
-    image.onload = () => {
-        obj.width = image.width;
-        obj.height = image.height;
-        gl.bindTexture(gl.TEXTURE_2D, texture);
-        gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGB, gl.RGB, gl.UNSIGNED_BYTE, image);
-    };
-    image.src = url;
-
-    return obj;
-}
-
 function updateKeywords () {
     let displayKeywords = [];
-    if (config.SUNRAYS) displayKeywords.push("SUNRAYS");
+  //  if (config.SUNRAYS) displayKeywords.push("SUNRAYS");
     displayMaterial.setKeywords(displayKeywords);
 }
 
@@ -574,7 +534,6 @@ updateKeywords();
 initFramebuffers();
 
 let lastUpdateTime = Date.now();
-let colorUpdateTimer = 0.0;
 update();
 
 function update () {
@@ -610,12 +569,13 @@ function resizeCanvas () {
 
 function applyInputs () {
 
+  //  pointers.forEach(p => {splatPointer();});
   splatPointer( pointers[0]);
 }
 
 function render (target) {
 
-        applySunrays(dye.read, dye.write, sunrays);
+      //  applySunrays(dye.read, dye.write, sunrays);
     drawDisplay(target);
 }
 
@@ -624,30 +584,29 @@ function drawDisplay (target) {
     let height = target == null ? gl.drawingBufferHeight : target.height;
 
     displayMaterial.bind();
-        gl.uniform2f(displayMaterial.uniforms.resolution, canvas.width , canvas.height);
-        gl.uniform1i(displayMaterial.uniforms.uSunrays, sunrays.attach(0));
-        gl.uniform1i(displayMaterial.uniforms.uTex, fragesTexture.attach(1));
+    //gl.uniform1f(displayMaterial.uniforms.time, performance.now() / 1000);
+  //      gl.uniform1i(displayMaterial.uniforms.uSunrays, sunrays.attach(3));
     blit(target);
 }
 
-function applySunrays (source, mask, destination) {
+/*function applySunrays (source, mask, destination) {
     gl.disable(gl.BLEND);
     sunraysProgram.bind();
     gl.uniform1f(sunraysProgram.uniforms.weight, config.SUNRAYS_WEIGHT);
     blit(destination);
-}
+}*/
 
 function splatPointer (pointer) {
-    let dx = pointer.deltaX * config.SPLAT_FORCE;
-    let dy = pointer.deltaY * config.SPLAT_FORCE;
-    splat(pointer.texcoordX, pointer.texcoordY, dx, dy, pointer.color);
+
+    splat(pointer.texcoordX, pointer.texcoordY);
 }
 
-function splat (x, y, dx, dy, color) {
+function splat (x, y) {
     splatProgram.bind();
-
     gl.uniform1f(splatProgram.uniforms.aspectRatio, canvas.width / canvas.height);
-    gl.uniform2f(splatProgram.uniforms.point, x, y);
+    //gl.uniform1f(splatProgram.uniforms.time, performance.now() / 1000);
+    //gl.uniform2f(splatProgram.uniforms.resolution, canvas.width , canvas.height);
+    gl.uniform2f(splatProgram.uniforms.mouse, x, y);
     gl.uniform1i(splatProgram.uniforms.uTarget, dye.read.attach(0));
     blit(dye.write);
     dye.swap();
@@ -657,7 +616,7 @@ canvas.addEventListener('mousedown', e => {
     let posX = scaleByPixelRatio(e.offsetX);
     let posY = scaleByPixelRatio(e.offsetY);
     //let pointer = pointers.find(p => p.id == -1);
-      let pointer = pointers[0];
+    let pointer = pointers[0];
     if (pointer == null)
         pointer = new pointerPrototype();
     updatePointerDownData(pointer, -1, posX, posY);
