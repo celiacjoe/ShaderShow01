@@ -38,7 +38,7 @@ if (isMobile()) {
   //  config.SUNRAYS_RESOLUTION = 512;
 }
 if (!ext.supportLinearFiltering) {
-  //  config.DYE_RESOLUTION = 512;
+    config.DYE_RESOLUTION = 512;
 //  config.SUNRAYS_RESOLUTION = 512;
 
 }
