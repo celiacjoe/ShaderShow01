@@ -294,9 +294,14 @@ const displayShaderSource = `
     precision highp sampler2D;
     varying vec2 vUv;
     uniform sampler2D uTexture;
+    uniform sampler2D uTex;
+    uniform vec2 resolution;
     float sv(vec2 uv){return length(texture2D(uTexture, uv).xyz);}
 vec2 g(vec2 uv,float e){
 return vec2(sv(uv+vec2(e,0.))-sv(uv-vec2(e,0.)),sv(uv+vec2(0.,e))-sv(uv-vec2(0.,e)))/e;}
+vec2 map(vec2 value, vec2 min1, vec2 max1, vec2 min2, vec2 max2) {
+  return min2 + (value - min1) * (max2 - min2) / (max1 - min1);
+}
     void main () {
       vec2 uv = vUv;
       float e = 0.01;
@@ -304,8 +309,11 @@ return vec2(sv(uv+vec2(e,0.))-sv(uv-vec2(e,0.)),sv(uv+vec2(0.,e))-sv(uv-vec2(0.,
   n=normalize(n);
   vec3 li =vec3(0.5,0.5,1.);
   float sha=clamp(dot(n,li),0.,1.0);
+  vec2 bm = vec2(1024.,256.)/resolution;
+  vec2 uf = map(uv,vec2(0.,1.),vec2(bm.x,1.-bm.y),vec2(-0.1),vec2(0.9));
         vec3 c = texture2D(uTexture, vUv).xyz;
-        gl_FragColor = vec4(c*sha,1.);
+
+        gl_FragColor = vec4(c*sha*texture2D(uTex, uf+n.xy*0.25).x,1.);
     }
 `;
 
@@ -425,7 +433,7 @@ let dye;
 //const sunraysProgram         = new Program(baseVertexShader, sunraysShader);
 const splatProgram           = new Program(baseVertexShader, splatShader);
 
-
+let fragesTexture = createTextureAsync('Insta_Avatar2.png');
 const displayMaterial = new Material(baseVertexShader, displayShaderSource);
 
 function initFramebuffers () {
@@ -446,20 +454,8 @@ function initFramebuffers () {
       //  dye = resizeDoubleFBO(dye,canvas.width*0.5, canvas.height*0.5, rgba.internalFormat, rgba.format, texType, filtering);
 
 
-    //initSunraysFramebuffers();
 }
 
-/*function initSunraysFramebuffers () {
-    let res = getResolution(config.SUNRAYS_RESOLUTION);
-
-    const texType = ext.halfFloatTexType;
-    const rgba    = ext.formatRGBA;
-    const rg      = ext.formatRG;
-    const r = ext.formatR;
-    const filtering = ext.supportLinearFiltering ? gl.LINEAR : gl.NEAREST;
-
-    sunrays     = createFBO(res.width, res.height, rgba.internalFormat, rgba.format, texType, filtering);
-}*/
 
 function createFBO (w, h, internalFormat, format, type, param) {
     gl.activeTexture(gl.TEXTURE0);
@@ -523,6 +519,37 @@ function createDoubleFBO (w, h, internalFormat, format, type, param) {
         }
     }
 }
+function createTextureAsync (url) {
+    let texture = gl.createTexture();
+    gl.bindTexture(gl.TEXTURE_2D, texture);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGB, 1, 1, 0, gl.RGB, gl.UNSIGNED_BYTE, new Uint8Array([255, 255, 255]));
+
+    let obj = {
+        texture,
+        width: 1,
+        height: 1,
+        attach (id) {
+            gl.activeTexture(gl.TEXTURE0 + id);
+            gl.bindTexture(gl.TEXTURE_2D, texture);
+            return id;
+        }
+    };
+
+    let image = new Image();
+    image.onload = () => {
+        obj.width = image.width;
+        obj.height = image.height;
+        gl.bindTexture(gl.TEXTURE_2D, texture);
+        gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGB, gl.RGB, gl.UNSIGNED_BYTE, image);
+    };
+    image.src = url;
+
+    return obj;
+}
 
 function updateKeywords () {
     let displayKeywords = [];
@@ -584,6 +611,8 @@ function drawDisplay (target) {
     let height = target == null ? gl.drawingBufferHeight : target.height;
 
     displayMaterial.bind();
+    gl.uniform2f(displayMaterial.uniforms.resolution, canvas.width , canvas.height);
+      gl.uniform1i(displayMaterial.uniforms.uTex, fragesTexture.attach(1));
     //gl.uniform1f(displayMaterial.uniforms.time, performance.now() / 1000);
   //      gl.uniform1i(displayMaterial.uniforms.uSunrays, sunrays.attach(3));
     blit(target);
