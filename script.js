@@ -7,12 +7,12 @@ const canvas = document.getElementsByTagName('canvas')[0];
 resizeCanvas();
 
 let config = {
-    DYE_RESOLUTION: 512,
+    DYE_RESOLUTION: 1024,
     PAUSED: false,
     BACK_COLOR: { r: 0, g: 0, b: 0 },
     TRANSPARENT: false,
     SUNRAYS: true,
-    SUNRAYS_RESOLUTION: 512,
+    SUNRAYS_RESOLUTION: 1024,
 }
 
 function pointerPrototype () {
@@ -366,7 +366,7 @@ const splatShader = compileShader(gl.FRAGMENT_SHADER, `
     void main () {
         vec2 p = vUv - point.xy;
         p.x *= aspectRatio;
-        vec3 diff = vec3(0.001*vec2(1.,aspectRatio),0.);
+        vec3 diff = vec3(0.003*vec2(1.,aspectRatio),0.);
         float mp =smoothstep(0.1,0.,length(p));
         float mp2 =smoothstep(.3,0.,length(p));
         vec4 center =texture2D(uTarget, vUv);
@@ -440,9 +440,9 @@ function initFramebuffers () {
     gl.disable(gl.BLEND);
 
     if (dye == null)
-        dye = createDoubleFBO(dyeRes.width, dyeRes.height, rgba.internalFormat, rgba.format, texType, gl.NEAREST);
+        dye = createDoubleFBO(dyeRes.width, dyeRes.height, rgba.internalFormat, rgba.format, texType,filtering );
     else
-        dye = resizeDoubleFBO(dye, dyeRes.width, dyeRes.height, rgba.internalFormat, rgba.format, texType, gl.NEAREST);
+        dye = resizeDoubleFBO(dye, dyeRes.width, dyeRes.height, rgba.internalFormat, rgba.format, texType, filtering );
 
 
     initSunraysFramebuffers();
