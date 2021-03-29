@@ -7,7 +7,7 @@ const canvas = document.getElementsByTagName('canvas')[0];
 resizeCanvas();
 
 let config = {
-    DYE_RESOLUTION: 1024,
+    DYE_RESOLUTION: 512,
     PAUSED: false,
     BACK_COLOR: { r: 0, g: 0, b: 0 },
     TRANSPARENT: false,
