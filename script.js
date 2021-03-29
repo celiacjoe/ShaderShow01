@@ -366,7 +366,7 @@ const splatShader = compileShader(gl.FRAGMENT_SHADER, `
     void main () {
         vec2 p = vUv - point.xy;
         p.x *= aspectRatio;
-        vec3 diff = vec3(0.003*vec2(1.,aspectRatio),0.);
+        vec3 diff = vec3(0.004*vec2(1.,aspectRatio),0.);
         float mp =smoothstep(0.1,0.,length(p));
         float mp2 =smoothstep(.3,0.,length(p));
         vec4 center =texture2D(uTarget, vUv);
@@ -440,9 +440,9 @@ function initFramebuffers () {
     gl.disable(gl.BLEND);
 
     if (dye == null)
-        dye = createDoubleFBO(dyeRes.width, dyeRes.height, rgba.internalFormat, rgba.format, texType,filtering );
+        dye = createDoubleFBO(dyeRes.width, dyeRes.height, rgba.internalFormat, rgba.format, texType,gl.NEAREST );
     else
-        dye = resizeDoubleFBO(dye, dyeRes.width, dyeRes.height, rgba.internalFormat, rgba.format, texType, filtering );
+        dye = resizeDoubleFBO(dye, dyeRes.width, dyeRes.height, rgba.internalFormat, rgba.format, texType, gl.NEAREST );
 
 
     initSunraysFramebuffers();
@@ -457,7 +457,7 @@ function initSunraysFramebuffers () {
     const r = ext.formatR;
     const filtering = ext.supportLinearFiltering ? gl.LINEAR : gl.NEAREST;
 
-    sunrays     = createFBO(res.width, res.height, rgba.internalFormat, rgba.format, texType, filtering);
+    sunrays     = createFBO(res.width, res.height, rgba.internalFormat, rgba.format, texType, gl.NEAREST);
 }
 
 function createFBO (w, h, internalFormat, format, type, param) {
@@ -636,12 +636,12 @@ canvas.addEventListener('mousemove', e => {
 });
 
 window.addEventListener('mouseup', () => {
- navigator.vibrate(200);
+ //navigator.vibrate(200);
     updatePointerUpData(pointers[0]);
 });
 
 canvas.addEventListener('touchstart', e => {
-  navigator.vibrate(100);
+//  navigator.vibrate(100);
     e.preventDefault();
     const touches = e.targetTouches;
     while (touches.length >= pointers.length)
@@ -669,7 +669,7 @@ canvas.addEventListener('touchmove', e => {
 }, false);
 
 window.addEventListener('touchend', e => {
-  navigator.vibrate(100);
+//  navigator.vibrate(100);
     const touches = e.changedTouches;
   //  for (let i = 0; i < touches.length; i++)
   //  {
