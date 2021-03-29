@@ -388,7 +388,7 @@ vec3 ov3(vec3 a, vec3 b){
             k3.xyz = HSLToRGB(vec3(newHSL.x, newHSL.y, oldLum));
             vec3 mask = mix(vec3(0.,0.,0.368),vec3(-3.,0.12,0.12),distance((-1.+2.*uv)*0.464,vec2(0.)));
         vec3 k4 =ov3(clamp(k3.xyz,0.,1.),mask);
-        gl_FragColor = vec4(vec3(k4), f);
+        gl_FragColor = vec4(vec3(k2), f);
     }
 `);
 
