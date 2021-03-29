@@ -12,7 +12,7 @@ let config = {
     BACK_COLOR: { r: 0, g: 0, b: 0 },
     TRANSPARENT: false,
     SUNRAYS: true,
-    SUNRAYS_RESOLUTION: 1024,
+    SUNRAYS_RESOLUTION: 512,
 }
 
 function pointerPrototype () {
